@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chalkydoge.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="placeholder replace me!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mlp-nn">
+<meta property="og:url" content="http://chalkydoge.github.io/2022/11/06/mlp-nn/index.html">
+<meta property="og:site_name" content="doge的个人site">
+<meta property="og:description" content="placeholder replace me!">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://chalkydoge.github.io/2022/11/06/mlp-nn/digits.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/sample_inputs.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/nn.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/mlp-nn_weights.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/sklearn_mlp.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/acc.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/detailed_torch1.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/res1.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/another_loss.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/mlp2_train.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/res2.png">
+<meta property="og:image" content="http://chalkydoge.github.io/mlp-nn/res3.png">
+<meta property="article:published_time" content="2022-11-06T09:18:47.000Z">
+<meta property="article:modified_time" content="2024-11-25T16:05:37.984Z">
+<meta property="article:author" content="Chalkydoge">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chalkydoge.github.io/2022/11/06/mlp-nn/digits.png">
+
+<link rel="canonical" href="http://chalkydoge.github.io/2022/11/06/mlp-nn/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>mlp-nn | doge的个人site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">doge的个人site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://chalkydoge.github.io/2022/11/06/mlp-nn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/header.jpg">
+      <meta itemprop="name" content="Chalkydoge">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="doge的个人site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mlp-nn
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-11-06 17:18:47" itemprop="dateCreated datePublished" datetime="2022-11-06T17:18:47+08:00">2022-11-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-26 00:05:37" itemprop="dateModified" datetime="2024-11-26T00:05:37+08:00">2024-11-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>placeholder replace me!</p>
+<span id="more"></span>
+
+<h1 id="MLPNN-实验报告"><a href="#MLPNN-实验报告" class="headerlink" title="MLPNN 实验报告"></a>MLPNN 实验报告</h1><h2 id="1-任务描述"><a href="#1-任务描述" class="headerlink" title="1. 任务描述"></a>1. 任务描述</h2><p>采用什么方法实现一个什么样的任务? 解决了什么问题?</p>
+<p>基于MNIST数据集, 设计和实现了一套分类器, 基于<strong>多层感知机MLP模型</strong>，并且尝试使用多种分类的<strong>损失函数</strong>进行测试。</p>
+<blockquote>
+<p>Based on the MNIST dataset, design and implement MLPNN with two different error functions for classification.</p>
+</blockquote>
+<h2 id="2-数据集描述"><a href="#2-数据集描述" class="headerlink" title="2. 数据集描述"></a>2. 数据集描述</h2><p>采用何种数据集开展实验？</p>
+<p>MNIST数据集(kaggle地址)</p>
+<p><a target="_blank" rel="noopener" href="https://www.kaggle.com/competitions/digit-recognizer">https://www.kaggle.com/competitions/digit-recognizer</a></p>
+<ul>
+<li>基于了手写数字-MNIST数据集</li>
+</ul>
+<p>数据集有什么特点？</p>
+<ol>
+<li>MNIST-手写数字数据集</li>
+</ol>
+<ul>
+<li>每一张图片都是28 * 28大小的标准图片</li>
+<li>数据集合的大小比较大, 有42000张手写数字的图片; 测试集合也有28000张</li>
+<li>数据集合中每种数字的分布比较的均匀</li>
+</ul>
+<p>数据集的各项统计量是多少？</p>
+<ul>
+<li>数据集大小：42000张28*28的数字灰度图片；</li>
+<li>数据集参数数量：每一张图片的大小都是28*28，数字范围0-9，总计42000个输入训练样本。</li>
+<li>训练样本中数字的具体的分布如下：</li>
+</ul>
+<img src="/2022/11/06/mlp-nn/digits.png" class="" title="This is an example image">
+
+<!-- ![digits](./mlp-nn/digits.png) -->
+
+<h2 id="3-方法介绍"><a href="#3-方法介绍" class="headerlink" title="3.方法介绍"></a>3.方法介绍</h2><h3 id="3-1数据预处理-如有"><a href="#3-1数据预处理-如有" class="headerlink" title="3.1数据预处理(如有)"></a>3.1数据预处理(如有)</h3><ol>
+<li>MNIST数据集</li>
+</ol>
+<p>由于输入的没有任何预处理, 会提前观察一下图片的情况</p>
+<ul>
+<li><p>例如这里随机打印了25个数字的图片</p>
+</li>
+<li><p>可以观察到手写数字的大致形状和图片的基本属性</p>
+</li>
+</ul>
+<p><img src="/./mlp-nn/sample_inputs.png" alt="nums"></p>
+<h3 id="3-2算法描述"><a href="#3-2算法描述" class="headerlink" title="3.2算法描述"></a>3.2算法描述</h3><p>使用的模型是多层感知机MLP</p>
+<p>MLP的结构:</p>
+<p><img src="/./mlp-nn/nn.png" alt="nn"></p>
+<ul>
+<li>输入层</li>
+<li>隐层</li>
+<li>输出层</li>
+</ul>
+<p>特点:</p>
+<ul>
+<li><p>输入层大小为输入向量的维数</p>
+</li>
+<li><p>隐层之间的神经元是全连接的</p>
+</li>
+<li><p>隐层神经元的激活函数是非线性的</p>
+</li>
+<li><p>对于网络中的第j个神经元而言, 它所收到的响应为 $net_j &#x3D; \sum_{i &#x3D; 1}^d w_{ji} x_i + w_{j0} &#x3D; \sum_{i &#x3D; 0}^d w_{ji} x_i &#x3D; w_j^T \cdot x$</p>
+</li>
+<li><p>因此, 第j个神经元的输出就是$y_j &#x3D; g(net_j)$</p>
+</li>
+<li><p>对于输出层的第$k$个神经元, 它的信号相应就是$net_k &#x3D; \sum_{j &#x3D; 1}^{n_H} w_{kj} y_j + w_{k0} &#x3D; \sum_{j&#x3D;0}^{n_H}w_{kj} y_j &#x3D; w^T_k \cdot y$</p>
+</li>
+<li><p>最终对于标签分类为$k$的输出就是$y_k &#x3D; f(net_k) &#x3D; f(w^T_k \cdot y) &#x3D; f(\sum_{j &#x3D; 0}^{n_H} w_{kj} f(net_j)) &#x3D; f(\sum_{j &#x3D; 0}^{nH} w_{kj} f(\sum_{i &#x3D; 0}^d w_{ji} x_i))$</p>
+</li>
+<li><p>对于二分类问题而言, $y_k \in {1, -1}$</p>
+</li>
+<li><p>对于多分类问题, $y_k &#x3D; f(net_k) &#x3D; g_k(x)$</p>
+</li>
+</ul>
+<hr>
+<p>MLP采用的不同Loss function</p>
+<ul>
+<li>SSE Sum of Squared Loss</li>
+</ul>
+<blockquote>
+<p>物理意义上, 就是实际输出与我们预测的输出之间的方差</p>
+</blockquote>
+<p>$$<br>E(w) &#x3D; \frac{1}{2} \sum_{n &#x3D; 1}^N (y(w, x_n) - t_n)^2<br>$$</p>
+<ul>
+<li>概率上的解释: 网络输出给出了一种概率上的分布, 使用概率的好处 1. 可以引入非线性 2. 更多的loss选择</li>
+</ul>
+<p>从概率论的角度分析</p>
+<p>NN学习到的是一个关于输出变量$t$的概率分布</p>
+<p>$P(t|w, x) &#x3D; N(t| y(w,x), \beta^{-1})$</p>
+<ul>
+<li>学习到的是一个高斯分布, 期望$\mu &#x3D; y(w,x)$ 方差为$\beta^{-1}$</li>
+</ul>
+<p>假设我们的输入是独立同分布的, 那么对于所有的标签$t&#x3D;(t_n)_{n&#x3D;1}^N$<br>我们列出似然函数</p>
+<p>$P(t|w,x,\beta) &#x3D; \Pi_{n&#x3D;1}^n P(t_n|w,x_n, \beta)$</p>
+<p>$P(t_n | w, x_n, \beta) &#x3D; \frac{\beta}{\sqrt 2\pi} exp(\frac{-\beta}{2}(t_n - y(w,x_n)^2))$</p>
+<p>对数似然函数就是<br>$L &#x3D; \sum_{n&#x3D;1}^N ln(P(t_n | w,x_n,\beta)) &#x3D;\frac{N}{2}(ln\beta - ln 2\pi) - \frac{\beta}{2}(y(w,x_n) - t_n)^2 $</p>
+<p>让对数似然函数最大 <strong>等价于</strong> 让 $\frac{\beta}{2}(y(w,x_n) - t_n)^2$ 最小化,正好就是平方误差SSE最小化!</p>
+<blockquote>
+<p>因此从概率角度我们发现概率最大 &#x3D;&#x3D; 误差最小, 可以转变为一个学习概率分布的问题</p>
+</blockquote>
+<hr>
+<p>在本次实验中,我们尝试使用的误差函数有:</p>
+<ol>
+<li>Cross-Entrophy Loss 交叉熵</li>
+</ol>
+<p>对于一个二分类问题而言</p>
+<p>$t$是输出变量;</p>
+<ul>
+<li>$t &#x3D; 1$对于$C1$;</li>
+<li>$t &#x3D; 0$对于$C2$;</li>
+</ul>
+<p>网络有单个输出, 输出激活函数是</p>
+<p>$$<br>y &#x3D; \sigma(a) &#x3D; \frac{1}{1 + e^{-a}}<br>$$</p>
+<p>那么输出为$t$的概率是:<br>$$<br>P(t|X, w) &#x3D; y(x, W)^t (1 - y(x, W))^{1 - t}<br>$$</p>
+<p>相应的误差函数</p>
+<p>$$<br>E(w) &#x3D; -\sum_{n &#x3D; 1}^N{t_n ln y_n + (1 - t_n) ln(1 - y_n) }<br>$$</p>
+<p>K分类 输出激活函数为 logistic函数</p>
+<ul>
+<li>输出标签值为$t$的概率就是<br>$$<br>P(t|w,x) &#x3D; \Pi_{k&#x3D;1}^K y_k(w,x)^{t_k} (1 - y_k(w, x))^{1 - t_k}<br>$$</li>
+</ul>
+<p>对应的损失函数<br>$$<br>E(w) &#x3D; -\sum_{n&#x3D;1}^N\sum_{k&#x3D;1}^K{t_{nk} ln y_{nk} + (1 - t_{nk}) ln (1 - y_{nk})}<br>$$</p>
+<p>1-of-K coding</p>
+<ul>
+<li>不断地用二分类的方式区分标签值为k的概率与非k的概率</li>
+<li>输出$y_k$的概率公式: $y_k(w,x) &#x3D; \frac{exp(a_k(w,x))}{\sum_j exp(a_j(w,x))}$</li>
+</ul>
+<ol start="2">
+<li>MultiLabel Soft-Margin Loss</li>
+</ol>
+<p>Multi Labels, 1 vs all, max entropy, (x, y) in (N, C)<br>多标签, 1对全部的损失函数, 基于的是最大熵模型</p>
+<p>具体的计算是<br>$loss(x, y) &#x3D; \frac{1}{C}\sum_i y_i * log(\frac{1}{(1 + e^{-x_i}}) + (1 - y_i) * log(\frac{e^{-x_i}}{1 + e^{-x_i}}) $</p>
+<hr>
+<p>多层感知机的BP算法</p>
+<ul>
+<li><p>Error BackPropagation</p>
+</li>
+<li><p>从隐藏层到输出层的学习</p>
+</li>
+</ul>
+<p>由于输出层 第$k$个单元的响应为</p>
+<p>$net_k &#x3D; \sum_{j&#x3D;0}^{n_H} w_{kj} y_j$</p>
+<p>所以对于给定的$E(w)$, 关于隐层到输出层系数的梯度</p>
+<p>$$<br>\frac{\partial E}{\partial w_{kj}} &#x3D; \frac{\partial E}{\partial net_k}<br>\frac{\partial net_k}{\partial w_{kj}}<br>&#x3D; -\delta_{k} \frac{\partial net_k}{\partial w_{kj}}<br>$$</p>
+<ul>
+<li>$\delta_k$是第$k$个单元的sensitivity(敏感度)</li>
+</ul>
+<p>假设激活函数f是可微分的</p>
+<p>$$<br>\delta_k &#x3D; \frac{\partial E}{\partial net_k}<br>&#x3D; \frac{\partial E}{\partial y_k}<br>\frac{\partial y_k}{\partial net_k}<br>&#x3D;(t_k - y_k) f’(net_k)<br>$$</p>
+<p>(因为这里的误差函数就是SSE)</p>
+<p>又因为 $net_k &#x3D; w_{kj}^T \cdot y_j$<br>所以$\frac{\partial net_k}{\partial w_{kj}} &#x3D; y_j$</p>
+<p>最终得到隐层-输出层的梯度学习规则</p>
+<p>$$<br>\Delta_{kj} &#x3D; \eta \delta_k y_j<br>&#x3D; \eta (t_k - y_k) f’(net_k) y_j<br>$$</p>
+<p>其中$\eta$是我们定义的学习率</p>
+<ul>
+<li>从输入层到隐藏层的学习</li>
+</ul>
+<p>第$j$个神经元的响应$net_j &#x3D; \sum_{i&#x3D;0}^d w_{ji}x_i$</p>
+<p>而根据我们的结构, 可以列出以下的梯度关系<br>$$<br>\frac{\partial E}{\partial w_{ji}}<br>&#x3D; \frac{\partial E}{\partial y_j}<br>\frac{\partial y_j}{\partial net_j}<br>\frac{\partial net_j}{\partial w_{ji}}<br>$$</p>
+<p>由于 $\frac{\partial net_j}{\partial w_{ji}} &#x3D; x_i$<br>以及 $\frac{\partial y_j}{\partial net_j} &#x3D; f’(net_j)$</p>
+<p>还有误差函数关于输出y的导数<br>$$<br>\frac{\partial E}{\partial y_j}<br>&#x3D; \frac{\partial}{\partial y_j}[\frac{1}{2}\sum_{k&#x3D;1}^c (t_k - y_k)^2]<br>&#x3D; -\sum_{k&#x3D;1}^c(t_k-y_k) \frac{\partial y_k}{y_j}<br>&#x3D; -\sum_{k&#x3D;1}^c(t_k-y_k) \frac{\partial y_k}{net_k} \frac{\partial net_k}{y_j}<br>&#x3D;  -\sum_{k&#x3D;1}^c(t_k-y_k) f’(net_k) w_{kj}<br>$$</p>
+<p>类似的我们定义一个隐层单元的敏感度<br>$\delta_j &#x3D; f’(net_j) \sum_{k&#x3D;1}^c w_{kj} \delta_k$</p>
+<p>那么对于输入层-隐层的学习规则我们得到</p>
+<p>$$<br>\Delta w_{ji} &#x3D; \eta \delta_j x_i &#x3D; \eta f’(net_j) [\sum_{k&#x3D;1}^c w_{kj}\delta_k] x_i<br>$$</p>
+<hr>
+<p>MLP在实际应用中需要考虑的问题</p>
+<ol>
+<li><p>激活函数的选择: 非线性&#x2F;线性, 单调性, 连续性</p>
+</li>
+<li><p>隐层的神经元数量 $n_H \to n&#x2F;10$</p>
+</li>
+<li><p>初始网络的权重</p>
+</li>
+<li><p>学习率大小$\eta &#x3D; 0.1$</p>
+</li>
+<li><p>权重的衰减</p>
+</li>
+<li><p>隐层的数量</p>
+</li>
+<li><p>目标函数的选择</p>
+</li>
+</ol>
+<h2 id="4-实验结果分析"><a href="#4-实验结果分析" class="headerlink" title="4.实验结果分析"></a>4.实验结果分析</h2><h3 id="4-1评价指标"><a href="#4-1评价指标" class="headerlink" title="4.1评价指标"></a>4.1评价指标</h3><p>对于MNIST的数据集的数字分类问题，我们使用的评价指标自然是分类的<strong>准确率</strong> $p$ (分类正确个数&#x2F;总测试样本数)</p>
+<ul>
+<li>这里既包括了 训练的准确率 $p_{train}$</li>
+<li>也包括了最终 测试的准确率 $p_{test}$(通过kaggle-submission获得结果)</li>
+</ul>
+<h3 id="4-2定量评价结果"><a href="#4-2定量评价结果" class="headerlink" title="4.2定量评价结果"></a>4.2定量评价结果</h3><p>MNIST识别数字的准确率</p>
+<p>实验结果:</p>
+<p>多层感知机+不同的损失函数得到的准确率:</p>
+<ul>
+<li><p>交叉熵损失: 准确率 $p &#x3D; 0.97475$</p>
+</li>
+<li><p>NLL(对数似然损失) negative log likelihood loss: 准确率 $p &#x3D; 0.97475$</p>
+</li>
+</ul>
+<h3 id="4-3可视化结果"><a href="#4-3可视化结果" class="headerlink" title="4.3可视化结果"></a>4.3可视化结果</h3><p>可以是算法的实际分类效果图(见上4.2部分)</p>
+<h4 id="1-交叉熵损失"><a href="#1-交叉熵损失" class="headerlink" title="1.交叉熵损失"></a>1.交叉熵损失</h4><p>(使用sklearn的版本)</p>
+<blockquote>
+<p>关于MNIST数据集, 采用基本的MLPNN训练(MLPClassifier, 100个神经元), 学习到的权重分布图(使用sklearn)</p>
+</blockquote>
+<p><img src="/./mlp-nn/mlp-nn_weights.png" alt="weights"></p>
+<p>训练的代码:</p>
+<p><img src="/./mlp-nn/sklearn_mlp.png" alt="sklearn"></p>
+<p>可以看到多层感知机模型是如何通过学习权重实现具体的分类, 例如第3行的第3张图片, 可以很明显看出在’1’数字附近的权重大小有所不同(说明MLP学习到了边界的分布)</p>
+<p><strong>最终得分</strong></p>
+<ul>
+<li>准确率为$p_1 &#x3D; 0.950638$, 达到了一个不错的水平</li>
+<li>可以看到的是我们的感知机隐层数量只有40个神经元，但是也能够很好的学到特征</li>
+<li>参数设置为:</li>
+</ul>
+<ol>
+<li>隐层大小 $n_H &#x3D; 40$</li>
+<li>学习率 $\eta &#x3D; 0.2$</li>
+<li>梯度下降使用 sgd 随机梯度下降</li>
+<li>损失函数 系数$\alpha &#x3D; 0.0001$</li>
+</ol>
+<hr>
+<p>(使用torch的版本)</p>
+<p>torch的相关网络模型定义:</p>
+<p>torch的训练代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">train</span>(<span class="params">model, loss_fn, optimizer, train_loader</span>):</span><br><span class="line">    mean_train_losses = []</span><br><span class="line">    mean_valid_losses = []</span><br><span class="line">    valid_acc_list = []</span><br><span class="line">    epochs = <span class="number">30</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(epochs):</span><br><span class="line">        model.train()</span><br><span class="line"></span><br><span class="line">        train_losses = []</span><br><span class="line">        valid_losses = []</span><br><span class="line">        <span class="keyword">for</span> i, (images, labels) <span class="keyword">in</span> <span class="built_in">enumerate</span>(train_loader):</span><br><span class="line">            optimizer.zero_grad()</span><br><span class="line">            </span><br><span class="line">            outputs = model(images)</span><br><span class="line">            loss = loss_fn(outputs, labels)</span><br><span class="line">            loss.backward()</span><br><span class="line">            optimizer.step()</span><br><span class="line"></span><br><span class="line">            train_losses.append(loss.item())</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i * <span class="number">128</span>) % (<span class="number">128</span> * <span class="number">100</span>) == <span class="number">0</span>:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&#x27;<span class="subst">&#123;i * <span class="number">128</span>&#125;</span> / 50000&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        model.<span class="built_in">eval</span>()</span><br><span class="line">        correct = <span class="number">0</span></span><br><span class="line">        total = <span class="number">0</span></span><br><span class="line">        <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">            <span class="keyword">for</span> i, (images, labels) <span class="keyword">in</span> <span class="built_in">enumerate</span>(valid_loader):</span><br><span class="line">                outputs = model(images)</span><br><span class="line">                loss = loss_fn(outputs, labels)</span><br><span class="line"></span><br><span class="line">                valid_losses.append(loss.item())</span><br><span class="line"></span><br><span class="line">                _, predicted = torch.<span class="built_in">max</span>(outputs.data, <span class="number">1</span>)</span><br><span class="line">                correct += (predicted == labels).<span class="built_in">sum</span>().item()</span><br><span class="line">                total += labels.size(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        mean_train_losses.append(np.mean(train_losses))</span><br><span class="line">        mean_valid_losses.append(np.mean(valid_losses))</span><br><span class="line"></span><br><span class="line">        accuracy = <span class="number">100</span>*correct/total</span><br><span class="line">        valid_acc_list.append(accuracy)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;epoch : &#123;&#125;, train loss : &#123;:.4f&#125;, valid loss : &#123;:.4f&#125;, valid acc : &#123;:.2f&#125;%&#x27;</span>\</span><br><span class="line">             .<span class="built_in">format</span>(epoch+<span class="number">1</span>, np.mean(train_losses), np.mean(valid_losses), accuracy))</span><br><span class="line">    <span class="keyword">return</span> mean_train_losses, mean_valid_losses, valid_acc_list</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>MNIST使用交叉熵(Cross-Entropy)作为损失函数时的训练准确率曲线(使用torch)</p>
+</blockquote>
+<p>torch的测试:</p>
+<p><img src="/./mlp-nn/acc.png" alt="acc"></p>
+<p>可以看到很快网络就收敛, 损失很快收敛到一个较低的水平。</p>
+<p><img src="/./mlp-nn/detailed_torch1.png" alt="detail1"><br>具体的测试过程中 我们可以看到一个步长(epoch)就使得我们的感知机在训练集上几乎学到了所有特征, 获得了90%以上的准确率</p>
+<ul>
+<li>训练集上的准确率$p_{train} &#x3D; 0.9686$</li>
+</ul>
+<p><strong>最终结果</strong></p>
+<ul>
+<li>我们的多层感知机(使用交叉熵损失)在测试集上的准确率$p &#x3D; 0.97475$ 达到了一个很高的水平</li>
+</ul>
+<p><img src="/./mlp-nn/res1.png" alt="res1"></p>
+<hr>
+<h4 id="2-MultiLabel-SoftMargin-Loss"><a href="#2-MultiLabel-SoftMargin-Loss" class="headerlink" title="2.MultiLabel SoftMargin Loss"></a>2.MultiLabel SoftMargin Loss</h4><ul>
+<li>多标签-软间隔损失的定义</li>
+</ul>
+<p><img src="/./mlp-nn/another_loss.png" alt="loss"></p>
+<ul>
+<li><p>可以看到实际上类似于交叉熵, 但这里的损失函数, 基于的是最大熵模型</p>
+</li>
+<li><p>1 vs k的想法的一个具体应用</p>
+</li>
+</ul>
+<p>相应的代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">new_model = MLP()</span><br><span class="line">loss_fn = nn.MultiLabelSoftMarginLoss()</span><br><span class="line">optimizer = torch.optim.Adam(new_model.parameters(), lr=<span class="number">0.001</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 使用 MultiLabelSoftMarginLoss 损失的测试</span></span><br><span class="line">mean_train_losses, mean_valid_losses, valid_acc_list = modified_train(new_model, loss_fn, optimizer, train_loader)</span><br></pre></td></tr></table></figure>
+
+<p>训练的过程:</p>
+<p><img src="/./mlp-nn/mlp2_train.png" alt="mlp2"></p>
+<ul>
+<li>训练的最终准确率$p_{train} &#x3D; 0.9762$</li>
+</ul>
+<p><img src="/./mlp-nn/res2.png" alt="mlp2_train"></p>
+<p><strong>最终结果</strong></p>
+<ul>
+<li>我们的多层感知机(使用多标签软间隔损失)在测试集上的准确率$p_{test} &#x3D; 0.97032$ 也达到了一个很高的水平</li>
+</ul>
+<p><img src="/./mlp-nn/res3.png" alt="res1"></p>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5.总结"></a>5.总结</h2><pre><code>比较不同方法的优缺点等。
+</code></pre>
+<p>多层感知机模型在数字分类问题上的表现都很不错，即使是最简单的单隐层模型；MLP的一个优点就是十分灵活，可以简单也可以复杂。</p>
+<p>实验中我们测试了不同隐层大小对于分类结果的影响，发现当大小较小时相对而言效果总是稍微差于更大的网络，但是差距并不是很大。</p>
+<p>对于不同的损失函数而言，可以发现不同的loss-function，即使都是基于最大似然估计的概率分布，目标都是去最大化这个似然函数，训练的效果也会略有不同。而如何选择一个合适的loss-function对于我们的模型效果也是很重要的。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/11/06/SVM-SVR/" rel="prev" title="SVM-SVR">
+      <i class="fa fa-chevron-left"></i> SVM-SVR
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/13/tea-1114/" rel="next" title="tea-1114">
+      tea-1114 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MLPNN-%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="nav-number">1.</span> <span class="nav-text">MLPNN 实验报告</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BB%BB%E5%8A%A1%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">1. 任务描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%95%B0%E6%8D%AE%E9%9B%86%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.2.</span> <span class="nav-text">2. 数据集描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%96%B9%E6%B3%95%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.3.</span> <span class="nav-text">3.方法介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86-%E5%A6%82%E6%9C%89"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1数据预处理(如有)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%E7%AE%97%E6%B3%95%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2算法描述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">1.4.</span> <span class="nav-text">4.实验结果分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1评价指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%E5%AE%9A%E9%87%8F%E8%AF%84%E4%BB%B7%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2定量评价结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3%E5%8F%AF%E8%A7%86%E5%8C%96%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3可视化结果</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BA%A4%E5%8F%89%E7%86%B5%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">1.交叉熵损失</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-MultiLabel-SoftMargin-Loss"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">2.MultiLabel SoftMargin Loss</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">5.总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chalkydoge"
+      src="/images/header.jpg">
+  <p class="site-author-name" itemprop="name">Chalkydoge</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chalkydoge</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

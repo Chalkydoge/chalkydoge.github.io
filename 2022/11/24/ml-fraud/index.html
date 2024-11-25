@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chalkydoge.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="令人吐血的作业…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习作业-欺诈识别">
+<meta property="og:url" content="http://chalkydoge.github.io/2022/11/24/ml-fraud/index.html">
+<meta property="og:site_name" content="doge的个人site">
+<meta property="og:description" content="令人吐血的作业…">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-11-24T14:49:20.000Z">
+<meta property="article:modified_time" content="2024-11-25T16:05:37.984Z">
+<meta property="article:author" content="Chalkydoge">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chalkydoge.github.io/2022/11/24/ml-fraud/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>机器学习作业-欺诈识别 | doge的个人site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">doge的个人site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://chalkydoge.github.io/2022/11/24/ml-fraud/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/header.jpg">
+      <meta itemprop="name" content="Chalkydoge">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="doge的个人site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习作业-欺诈识别
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-11-24 22:49:20" itemprop="dateCreated datePublished" datetime="2022-11-24T22:49:20+08:00">2022-11-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-26 00:05:37" itemprop="dateModified" datetime="2024-11-26T00:05:37+08:00">2024-11-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>令人吐血的作业…</p>
+<span id="more"></span>
+
+<!--  -->
+
+<h1 id="机器学习作业-欺诈识别报告"><a href="#机器学习作业-欺诈识别报告" class="headerlink" title="机器学习作业-欺诈识别报告"></a>机器学习作业-欺诈识别报告</h1><h2 id="1-任务描述"><a href="#1-任务描述" class="headerlink" title="1. 任务描述"></a>1. 任务描述</h2><h2 id="2-数据集描述"><a href="#2-数据集描述" class="headerlink" title="2. 数据集描述"></a>2. 数据集描述</h2><p>数据集包括了三个部分:</p>
+<ul>
+<li><p><code>driver_data</code>，建模样本表，每行数据是一笔交易，数据可以分为几部分：交易主键，交易主体， 交易属性，数值型变量，行为序列编码，是否欺诈的标签；</p>
+</li>
+<li><p><code>event_data_card</code>， driver数据中收益卡近15天(从driver表中的交易时间算起)的历史收款数据，包含交易主键，交易主体，交易属性；</p>
+</li>
+<li><p><code>event_data_user</code>，driver数据中用户近15天的历史付款数据，包含交易主键，交易主体， 交易属性(注意这里的付款场景不止转账到卡的交易数据);</p>
+</li>
+</ul>
+<h3 id="详细说明"><a href="#详细说明" class="headerlink" title="详细说明"></a>详细说明</h3><p>建模样本表<code>driver_data</code>的数据描述</p>
+<p>交易属性</p>
+<ul>
+<li><p>交易时间</p>
+</li>
+<li><p>交易的用户(用户id)</p>
+</li>
+<li><p>收款方id(b_id, c_id)等</p>
+</li>
+<li><p>交易用户信息(基本属性)</p>
+</li>
+<li><p>收款方信息(收款为账号) b_info_1</p>
+</li>
+<li><p>收款方信息(收款为卡) c_info_1</p>
+</li>
+<li><p>用户信息 a_info_1, a_info_2, a_info_3</p>
+</li>
+<li><p>交易的设备位置信息 e_info2, e_info3</p>
+</li>
+</ul>
+<p>用户信息</p>
+<p>a_id_1 + a_info_1-7</p>
+<ul>
+<li><p>a_info_4, a_info_6 这两列明显种类数量较少 适合使用Onehot编码</p>
+</li>
+<li><p>其余的a_info3,5,7等的量级在70-350之间 可以正常使用label-encoding</p>
+</li>
+<li><p>a_id_1这个用户标识几乎没有重复的, 让人怀疑究竟是怎会做到的, 即使存在诈骗行为也是很多的人(切换不同的账号进行诈骗)</p>
+</li>
+</ul>
+<h2 id="3-方法介绍"><a href="#3-方法介绍" class="headerlink" title="3.方法介绍"></a>3.方法介绍</h2><p>数据处理的关键点:</p>
+<ol>
+<li><p>数据分散在多张数据表里面(包括了交易模型, 卡片的交易记录, 用户的交易记录等), 需要用合适的方式组织数据;</p>
+</li>
+<li><p>数据类型复杂, 包括了大量的STRING类型数据, 序列化数据等无法被模型使用的类型, 需要进行转换处理;</p>
+</li>
+<li><p>数据的特征不明显, 由于很多的数据都被经过编码, 无法从编码本身看出对应的含义;</p>
+</li>
+</ol>
+<p>因此, 结合以上几个问题, 我们首先对于三张数据表进行了特征的筛选和合并, 得到相应的用于训练和测试的数据集</p>
+<ol>
+<li><p>对于数据特征工程: 提取重要的特征, 重新组成一些新特征&amp;去掉一些特别离谱的数据</p>
+</li>
+<li><p>模型选择：对于此类识别的问题来说, 基于决策树&#x2F;随机森林的模型一般不错</p>
+</li>
+<li><p>正负类差距过大, 可以通过一些方式, 例如imblearn进行适当修正, 或者使用负采样的方式 提升负类比例 down-sampling</p>
+</li>
+</ol>
+<h3 id="3-1数据预处理-如有"><a href="#3-1数据预处理-如有" class="headerlink" title="3.1数据预处理(如有)"></a>3.1数据预处理(如有)</h3><p>数据类型复杂, 含义较为模糊, 在这里进行了比较多的预处理工作</p>
+<h4 id="driver-data表的处理"><a href="#driver-data表的处理" class="headerlink" title="driver_data表的处理"></a>driver_data表的处理</h4><p>总结一下, 给我们的driver_data数据表中的数据主要就是以下这些</p>
+<ol>
+<li><p>发起交易的用户信息</p>
+</li>
+<li><p>收款方信息, 这里包含了两种收款方</p>
+</li>
+</ol>
+<ul>
+<li>收款方为卡</li>
+<li>收款方为体系内账号</li>
+</ul>
+<ol start="3">
+<li><p>交易双方的设备位置信息</p>
+</li>
+<li><p>交易发生的时间(时间+日期+消失)</p>
+</li>
+<li><p>交易金额</p>
+</li>
+<li><p>交易是否完成</p>
+</li>
+</ol>
+<p>那么从中我们发现, driver_data里可以提取的特征例如:</p>
+<ol>
+<li>观察收款方的特点, 是否与诈骗率有关系?</li>
+</ol>
+<ul>
+<li>收款为卡和收款为账号</li>
+</ul>
+<ol start="2">
+<li><p>GPS位置信息与诈骗率关系</p>
+</li>
+<li><p>组合以上特征得到的一些新的, 更高级特征是否与诈骗率有关系?</p>
+</li>
+</ol>
+<h4 id="event-card表的处理"><a href="#event-card表的处理" class="headerlink" title="event_card表的处理"></a>event_card表的处理</h4><h4 id="event-user表的处理"><a href="#event-user表的处理" class="headerlink" title="event_user表的处理"></a>event_user表的处理</h4><p>由于交易行为表中关于用户的交易记录完全缺失, 所以在我们的模型训练中没有包含这一张表的信息.</p>
+<h3 id="3-2算法描述"><a href="#3-2算法描述" class="headerlink" title="3.2算法描述"></a>3.2算法描述</h3><p>诈骗识别采用的模型是随机森林+参数优化算法</p>
+<h2 id="4-实验结果分析"><a href="#4-实验结果分析" class="headerlink" title="4.实验结果分析"></a>4.实验结果分析</h2><h3 id="4-1评价指标"><a href="#4-1评价指标" class="headerlink" title="4.1评价指标"></a>4.1评价指标</h3><h3 id="4-2定量评价结果"><a href="#4-2定量评价结果" class="headerlink" title="4.2定量评价结果"></a>4.2定量评价结果</h3><h3 id="4-3可视化结果"><a href="#4-3可视化结果" class="headerlink" title="4.3可视化结果"></a>4.3可视化结果</h3><h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5.总结"></a>5.总结</h2><pre><code>比较不同方法的优缺点等。
+</code></pre>
+<h3 id="特征工程"><a href="#特征工程" class="headerlink" title="特征工程"></a>特征工程</h3><p>做特征的思路</p>
+<p>因为是识别当前交易是否为欺诈交易，在做特征之前可能需要基于一定的业务背景分析下欺诈的场景，一般来讲，线上支付欺诈一般是盗号，那么实施欺诈时可能会有两种表现</p>
+<ol>
+<li><p>盗取后，集中高频交易，从而在最短时间内套现;</p>
+</li>
+<li><p>模拟真实用户的交易特征，在尽可能不被系统和用户发现的前提下实现盗刷等;</p>
+</li>
+</ol>
+<h3 id="提取特征"><a href="#提取特征" class="headerlink" title="提取特征"></a>提取特征</h3><ul>
+<li><p>去除了7列无关紧要的数据列(这里主要是用户信息, 因为无论是在训练集和还是测试集都没用!)</p>
+</li>
+<li><p>去掉了训练集中所有被系统拦截的交易(if_succ &#x3D; -1)这些全部去掉 总共900+行数据.</p>
+</li>
+<li><p>在XGBoost模型下反而降低了ROC-AUC到82%(性能变差了! 说明好像去掉了什么重要的内容!)</p>
+</li>
+</ul>
+<p>可能的改进方案:</p>
+<ul>
+<li>时间序列数据 在训练+测试集上是有一个明显的先后顺序的!</li>
+</ul>
+<p>todo:</p>
+<ol>
+<li>dt 一项实际上和time有重复! (time包含了当天的小时+分钟+秒等信息)</li>
+</ol>
+<blockquote>
+<p>apply自定义时间(YY MM DD: hh:mm:ss to 时间戳整数)</p>
+</blockquote>
+<p>将time转为时间戳, 去掉dt(重复了), 序列化week_day(0-1-2-3-4-5-6)表示星期天-星期六即可, hh小时可以不用改</p>
+<ol start="2">
+<li>增加特征, 替换time(绝对时间)</li>
+</ol>
+<p>time_in_day 表示天内的时间偏移量</p>
+<p>cents 表示 交易金额取整之后剩余部分()</p>
+<blockquote>
+<p>df[‘time_in_day’] &#x3D; uni.TransactionDT % 86400<br>  df[‘cents’] &#x3D; uni.TransactionAmt % 1</p>
+</blockquote>
+<ol start="3">
+<li><p>使用lgb替代原先使用的XGBoost(实际上可以两种都使用)</p>
+</li>
+<li><p>借鉴他人的方案</p>
+</li>
+</ol>
+<p>我认为这个或许可以替代手工实现一波特征的生成(引用openfe的feature-generation方法)</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/IIIS-Li-Group/OpenFE/blob/master/examples/IEEE-CIS-Fraud-Detection/main.py">https://github.com/IIIS-Li-Group/OpenFE/blob/master/examples/IEEE-CIS-Fraud-Detection/main.py</a></p>
+</blockquote>
+<p>或者这个比较传统的方式</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.kaggle.com/code/jtrotman/ieee-fraud-adversarial-lgb-split-points">https://www.kaggle.com/code/jtrotman/ieee-fraud-adversarial-lgb-split-points</a></p>
+</blockquote>
+<ul>
+<li>Cached OOF(Out-Of-Fold) 折外预测</li>
+<li>FAST Cross</li>
+</ul>
+<h3 id="特征分析"><a href="#特征分析" class="headerlink" title="特征分析"></a>特征分析</h3><p>用户信息</p>
+<p>a_id_1 + a_info_1-7</p>
+<ul>
+<li><p>a_info_4, a_info_6 这两列明显种类数量较少 适合使用Onehot编码</p>
+</li>
+<li><p>其余的a_info3,5,7等的量级在70-350之间 可以正常使用label-encoding</p>
+</li>
+<li><p>a_id_1这个用户标识几乎没有重复的, 让人怀疑究竟是怎会做到的, 即使存在诈骗行为也是很多的人(切换不同的账号进行诈骗)</p>
+</li>
+</ul>
+<h4 id="发起交易方的用户信息数据列"><a href="#发起交易方的用户信息数据列" class="headerlink" title="发起交易方的用户信息数据列"></a>发起交易方的用户信息数据列</h4><p><strong>用户信息</strong> 主要是以下这些列相关的信息</p>
+<ul>
+<li>[‘a_id_1’, ‘a_info_1’, ‘a_info_2’, ‘a_info_3’, ‘a_info_4’, ‘a_info_5’, ‘a_info_6’, ‘a_info_7’]</li>
+</ul>
+<p>a_id_1基本上都不相同(基本上都是不同的用户)<br>a_info_[1-7] 这些给出的都是uuid编码数据 看得出来比较分散, 需要LABEL-ENCODING后进行处理</p>
+<h4 id="地理位置相关的参数"><a href="#地理位置相关的参数" class="headerlink" title="地理位置相关的参数"></a>地理位置相关的参数</h4><ul>
+<li>[‘e_info_2’,’e_info_3’,’e_info_4’,’e_info_5’]</li>
+</ul>
+<p>4个编码字符串 类别化之后是否可以发现一些关系?</p>
+<p>注意是否需要和测试集一起编码?</p>
+<h4 id="收款方相关的参数"><a href="#收款方相关的参数" class="headerlink" title="收款方相关的参数"></a>收款方相关的参数</h4><p>收款方是<strong>用户</strong></p>
+<ul>
+<li>[‘b_id_1’,’b_info_1’, ‘b_info_2’, ‘b_info_3’, ‘b_info_4’, ‘b_info_5’]</li>
+</ul>
+<p>总结: 根本就没有, 可以忽略</p>
+<p>收款方是 <strong>卡</strong></p>
+<ul>
+<li>[‘c_id_1’, ‘c_info_1’, ‘c_info_2’, ‘c_id_2’, ‘c_info_4’, ‘c_info_5’]</li>
+</ul>
+<p>很多的编码字符串 类别化之后是否可以发现一些关系?</p>
+<p>注意是否需要和测试集一起编码?</p>
+<p>我认为有必要先划分driver data成两半</p>
+<ul>
+<li><p>收款是用户的 merge 用户</p>
+</li>
+<li><p>收款是卡的 merge 卡</p>
+</li>
+</ul>
+<p>然后分别在对应的主体上生成模型, 最后进行评估</p>
+<p>c_id_1 不清楚 23个相同用户 保留</p>
+<p>c_id_2 不清楚 911个共同特征 保留</p>
+<p>c_info_1 也可以留着(虽然关联不大 272个共同标签</p>
+<p>c_info_2 可以保留</p>
+<p>c_info_3 这个好多空值 建议去掉</p>
+<p>c_info_4 可以保留</p>
+<p>c_info_5 可以保留</p>
+<h4 id="交易相关参数"><a href="#交易相关参数" class="headerlink" title="交易相关参数"></a>交易相关参数</h4><p>这些:</p>
+<p>[‘time’, ‘hh’, ‘week_day’,’e_info_6’,’e_info_13’,’if_succ’, ‘dt’]</p>
+<p>e_info_6 反映了交易类型(完全一致)</p>
+<p>e_info_13 标识了交易金额相关</p>
+<ul>
+<li><p>if_succ &#x3D; 0的案例可以丢到(防止影响)</p>
+</li>
+<li><p>time其实没什么用(看起来) 测试集合的时间都在训练集合后面</p>
+</li>
+<li><p>e_info_6这一列数据在测试集合和训练集合一模一样 去掉</p>
+</li>
+<li><p>hh和week_day还是比较有用的</p>
+</li>
+<li><p>e_info_13分布相近 可以利用</p>
+</li>
+<li><p>dt同理 没有什么用</p>
+</li>
+</ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这一些参数内部 可以被作为’类别category’的列有以下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>而剩余的non-numeric列自然成为了’ordinal_features’</p>
+<hr>
+<p>通过open_fe的特征生成, 使得最终成绩提高到了0.34, 说明很有效果(特征的选择)</p>
+<p>继续提升的话需要考虑更精细的特征组合(高维度的特征加入)<br>模型继续使用随机森林</p>
+<ol>
+<li>比如组合”地理信息”, “用户信息”为新标签列加入数据集</li>
+<li>加入一些_FREQUENCY列(例如某一个标签出现的频率)</li>
+<li>细分AMOUNT(包括零头部分)</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/11/22/tea-1121/" rel="prev" title="tea-1121">
+      <i class="fa fa-chevron-left"></i> tea-1121
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/24/oni-daozhixing/" rel="next" title="缺氧游戏记录">
+      缺氧游戏记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%BD%9C%E4%B8%9A-%E6%AC%BA%E8%AF%88%E8%AF%86%E5%88%AB%E6%8A%A5%E5%91%8A"><span class="nav-number">1.</span> <span class="nav-text">机器学习作业-欺诈识别报告</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BB%BB%E5%8A%A1%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">1. 任务描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%95%B0%E6%8D%AE%E9%9B%86%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.2.</span> <span class="nav-text">2. 数据集描述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E8%AF%B4%E6%98%8E"><span class="nav-number">1.2.1.</span> <span class="nav-text">详细说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%96%B9%E6%B3%95%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.3.</span> <span class="nav-text">3.方法介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86-%E5%A6%82%E6%9C%89"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1数据预处理(如有)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#driver-data%E8%A1%A8%E7%9A%84%E5%A4%84%E7%90%86"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">driver_data表的处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#event-card%E8%A1%A8%E7%9A%84%E5%A4%84%E7%90%86"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">event_card表的处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#event-user%E8%A1%A8%E7%9A%84%E5%A4%84%E7%90%86"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">event_user表的处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%E7%AE%97%E6%B3%95%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2算法描述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">1.4.</span> <span class="nav-text">4.实验结果分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1评价指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%E5%AE%9A%E9%87%8F%E8%AF%84%E4%BB%B7%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2定量评价结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3%E5%8F%AF%E8%A7%86%E5%8C%96%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3可视化结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">5.总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B"><span class="nav-number">1.5.1.</span> <span class="nav-text">特征工程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E5%8F%96%E7%89%B9%E5%BE%81"><span class="nav-number">1.5.2.</span> <span class="nav-text">提取特征</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E5%88%86%E6%9E%90"><span class="nav-number">1.5.3.</span> <span class="nav-text">特征分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E8%B5%B7%E4%BA%A4%E6%98%93%E6%96%B9%E7%9A%84%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E6%95%B0%E6%8D%AE%E5%88%97"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">发起交易方的用户信息数据列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">地理位置相关的参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E6%AC%BE%E6%96%B9%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">1.5.3.3.</span> <span class="nav-text">收款方相关的参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E6%98%93%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0"><span class="nav-number">1.5.3.4.</span> <span class="nav-text">交易相关参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.3.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chalkydoge"
+      src="/images/header.jpg">
+  <p class="site-author-name" itemprop="name">Chalkydoge</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chalkydoge</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

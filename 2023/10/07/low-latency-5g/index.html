@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chalkydoge.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="蜂窝网络控制程序（例如，移动性、空闲-活动转换以节省能源）直接影响数据平面行为，影响用户体验延迟。L25GC实现了分页，并实现了避免3GPP的智能切换方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="low_latency_5g">
+<meta property="og:url" content="http://chalkydoge.github.io/2023/10/07/low-latency-5g/index.html">
+<meta property="og:site_name" content="doge的个人site">
+<meta property="og:description" content="蜂窝网络控制程序（例如，移动性、空闲-活动转换以节省能源）直接影响数据平面行为，影响用户体验延迟。L25GC实现了分页，并实现了避免3GPP的智能切换方案。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://chalkydoge.github.io/2023/10/07/low-latency-5g/5g_core_arch.png">
+<meta property="og:image" content="http://chalkydoge.github.io/2023/10/07/low-latency-5g/user_session.png">
+<meta property="og:image" content="http://chalkydoge.github.io/2023/10/07/low-latency-5g/optimized_5gc.png">
+<meta property="og:image" content="http://chalkydoge.github.io/2023/10/07/low-latency-5g/5gc_resiliency.png">
+<meta property="article:published_time" content="2023-10-07T03:04:48.000Z">
+<meta property="article:modified_time" content="2024-11-25T16:05:37.980Z">
+<meta property="article:author" content="Chalkydoge">
+<meta property="article:tag" content="5G">
+<meta property="article:tag" content="云原生">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chalkydoge.github.io/2023/10/07/low-latency-5g/5g_core_arch.png">
+
+<link rel="canonical" href="http://chalkydoge.github.io/2023/10/07/low-latency-5g/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>low_latency_5g | doge的个人site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">doge的个人site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://chalkydoge.github.io/2023/10/07/low-latency-5g/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/header.jpg">
+      <meta itemprop="name" content="Chalkydoge">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="doge的个人site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          low_latency_5g
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-10-07 11:04:48" itemprop="dateCreated datePublished" datetime="2023-10-07T11:04:48+08:00">2023-10-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-26 00:05:37" itemprop="dateModified" datetime="2024-11-26T00:05:37+08:00">2024-11-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>蜂窝网络控制程序（例如，移动性、空闲-活动转换以节省能源）直接影响数据平面行为，影响用户体验延迟。<br>L25GC实现了分页，并实现了避免3GPP的智能切换方案。</p>
+<span id="more"></span>
+
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>蜂窝网络控制程序（例如，移动性、空闲-活动转换以节省能源）直接影响数据平面行为，影响用户体验延迟。<br>识别此控制数据平面相互依赖，L25GC重新构建5G核心（5GC）网络及其处理，以减少控制平面操作的延迟和它们对数据平面的影响。<br>利用共享内存，L25GC消除消息序列化和 HTTP 处理开销，同时符合 3GPP 标准。我们改进数据平面通过分解函数进行处理，以避免控制数据平面干扰和使用可扩展的流级数据包分类器转发规则查找。<br>利用5GC的缓冲区，L25GC实现了分页，并实现了避免3GPP的智能切换方案。</p>
+<p>发夹路由，以及 5G 基站有限缓冲导致的数据丢失，减少延迟和不必要的消息处理。<br> L25GC 的集成故障恢复能力可透明地从5GC软件网络功能和硬件故障很多<br> 比 3GPP 的重新连接恢复程序更快。L25GC 建成</p>
+<p>基于 free5GC，一个基于开源内核的 5GC 实现。L25GC 将多个控制平面事件的事件完成时间缩短了 ∼50%，并改善了数据包延迟（由于改进了控制平面通信）<br>在寻呼和切换期间 ∼2×事件，与free5GC相比。L25GC的设计是通用的，尽管当前实现支持有限数量的用户会话。</p>
+<h1 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h1><p>在5G蜂窝生态系统中，实现了蜂窝组件；<br>作为基于软件的云原生服务，实现部署灵活性。但是，随着5G核心网（5GC）中的控制平面过程与传统的4G类似[49]，它没有充分利用全部优势。</p>
+<p>网络功能（NF）的软件化。<br>蜂窝核心预计将经历更多的控制平面流量，由于：</p>
+<ol>
+<li>蜂窝用户的大量增长，包括物联网和机器对机器设备[31]</li>
+<li>频繁切换：由于单元格大小减小而导致的事件。用户事件完成时间，比如一个需要1.9秒的交接过程（如[45]所示），会直接影响最终用户数据包。</li>
+<li>除了由于传统而受到的处罚蜂窝控制平面核心程序，我们识别几个额外的会导致延迟的问题（详见 §2.3）：</li>
+</ol>
+<ul>
+<li>采用HTTP &#x2F; REST进行NF间通信，表面上是为了支持“解聚合”的想法，但存在开销。消息序列化和 TCP 处理。</li>
+<li>由 3GPP 标准驱动的当前实施（§5.2.1[8]），在列表中组织转发（匹配操作）规则并执行查找匹配规则的低效线性搜索。</li>
+<li>用户在切换期间可能会遇到更高的数据包丢失到当前的发夹和菊花链路由，以及有限的缓冲区在目标 gNB（5G 基站）上。</li>
+<li>在故障期间，当前的3GPP恢复过程要求用户重新启动连接建立请求并重新开始。这直接影响正在进行的数据连接（例如，TCP 体验）虚假超时），影响 QoE。</li>
+</ul>
+<p>什么是hairpin和daisy-chain路由</p>
+<img src="/2023/10/07/low-latency-5g/5g_core_arch.png" class="" title="5G核心网络的主要组成结构">
+
+<h1 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h1><ol>
+<li>降低控制平面的延迟：Neutrino做到快速序列化+大的地理范围内维护用户状态的副本</li>
+<li>优化5GC的SBI：Buyakar 通过gRPC取代HTTP&#x2F;REST的方式实现服务接口</li>
+<li>蜂窝核心网络的可用性提升：ECHO 提出了4G 分布式 状态机复制的协议</li>
+<li>重新设计控制平面流程：CleanG 可扩展的基于NFV的架构优化控制&#x2F;数据平面的延迟。 共享内存(DPDK特性)</li>
+<li>利用客户段的状态： DPCM 客户端的解决方案-初始化+执行控制操作 与此同时 利用用户设备端的状态信息来降低控制平面的延迟</li>
+</ol>
+<h1 id="现有框架的挑战"><a href="#现有框架的挑战" class="headerlink" title="现有框架的挑战"></a>现有框架的挑战</h1><h2 id="挑战1：控制消息的处理"><a href="#挑战1：控制消息的处理" class="headerlink" title="挑战1：控制消息的处理"></a>挑战1：控制消息的处理</h2><p>实际上，相对于4G，5G中交换的控制消息数量略有增加，以保持用户状态在多个分解NF中的一致性[6]。<br>交换这些消息的成本很高，由于几个因素，包括消息序列化、HTTP&#x2F;TCP 开销。<br>通信开销将更高：如果 NF 放置在节点上。这成为一个问题，因为5G网络部署和应用不断发展，例如支持物联网，这可能会增加控制平面流量[31]。</p>
+<h2 id="挑战2：复杂的交接流程"><a href="#挑战2：复杂的交接流程" class="headerlink" title="挑战2：复杂的交接流程"></a>挑战2：复杂的交接流程</h2><p>切换操作最多可能需要 1.9秒 [45] 完成。这可能会影响数据平面流量。<br>例如，基于 TCP 的数据流量可能会遭受虚假超时，这会降低应用程序吞吐量。</p>
+<p>与4G基站不同，gNB可能相对较小，缓冲能力有限。</p>
+<p>每个基站的缓存大小约为1300个完整的MTU(每一个radio resource-connected的UE) </p>
+<p>X2&#x2F;S1等数据转发技术带来额外的延迟+数据丢失的问题</p>
+<p>hairpin-back 流量返回5G核心网络 5GC, 再转发到目标的gNB</p>
+<h2 id="挑战3：开销很大的规则匹配过程"><a href="#挑战3：开销很大的规则匹配过程" class="headerlink" title="挑战3：开销很大的规则匹配过程"></a>挑战3：开销很大的规则匹配过程</h2><p>UE将不仅仅是指用户的一个具体的移动端设备<br>一个5G的家庭网关可以同时操作多个5G通信的会话，请求不同类型的服务<br>数据包将会携带不同层级的QoS信息</p>
+<p>5GC需要提供一个可变的QoS模型，QoS的粒度需要设计在每个数据流上。<br>引出了 多IP层级的网络数据流模型&#x3D;5G网络场景，因此就需要</p>
+<img src="/2023/10/07/low-latency-5g/user_session.png" class="" title="一个用户的会话中所涉及的多个数据流">
+
+<p>目前试图在5G的数据平面中提供的过滤字段</p>
+<ul>
+<li>Service Data Flow (SDF) filter</li>
+<li>Ethernet Packet Filter</li>
+</ul>
+<p>在数据包中添加过滤字段 &#x3D; 大量的PDR(Packet Detection Rules)被按照每个数据包的频率进行扫描</p>
+<h2 id="挑战4：网络功能的可靠性和可恢复性"><a href="#挑战4：网络功能的可靠性和可恢复性" class="headerlink" title="挑战4：网络功能的可靠性和可恢复性"></a>挑战4：网络功能的可靠性和可恢复性</h2><p>从故障中回复，3GPP提出了需要额外的控制信息，用于恢复5G网络Network Function中的内容</p>
+<p>等待完成的连接需要等待一系列的上下文完成恢复之后才能够进行。但是这一过程的延迟巨大，而且可能带来数据包丢失的问题。</p>
+<p>This need for reattachment can be avoided by replicating the primary NFs.<br>就是说可以通过复制最初的NF来实现避免恢复上下文的操作。</p>
+<p>在主数据库发生故障时，主动复制需要状态信息切换到活动备用数据库，但是，为此类 NF 维护强一致性副本可能会影响正常性能。</p>
+<p>尽管现有技术（例如，使用延迟检查点和完全检查进行数据包重放指向）在NFV环境中运行良好，5GC构成显着影响</p>
+<p>由于控制平面和数据平面之间紧密的相互依赖性，需要对其设计进行实质性的增强，因此存在挑战。</p>
+<p>此外，持续运行的副本会消耗系统资源。我们需要一个策略来缩短恢复时间，协调控制平面状态与数据平面，并确保一致性无需消耗额外资源。</p>
+<h1 id="3-L25GC的设计和实现"><a href="#3-L25GC的设计和实现" class="headerlink" title="3. L25GC的设计和实现"></a>3. L25GC的设计和实现</h1><p>优化处理和通信，减少控制和数据平面的延迟，实现高吞吐量</p>
+<p>实现 3GPP 指定的控制面板和数据平面</p>
+<p>3GPP 5GP 面向服务架构的基本思想是<br>5G 规范面向服务架构背后的基本思想是，允许独立开发和扩展单个服务。<br>的基本思想是允许按照微服务设计范式独立开发和扩展单个服务。</p>
+<p>3GPP 5G 规范面向服务架构背后的基本思想是允许按照微服务设计范例独立开发和扩展单个服务。</p>
+<p>不过，我们认为，基于服务的接口不应强制要求其必须只使用 HTTP 和 REST API。</p>
+<ul>
+<li>在微服务共同驻留在微服务上的情况下，应能利用其他方式交换信息。</li>
+<li>但在微服务共同驻留在同一节点上时，应能利用其他方式交换信息。</li>
+</ul>
+<h2 id="在同一节点上整合NF"><a href="#在同一节点上整合NF" class="headerlink" title="在同一节点上整合NF"></a>在同一节点上整合NF</h2><p>我们利用系统功能，包括用于数据共享的共享内存空间，以避免在 NF 之间移动数据。<br>共享内存空间，避免在 NF 之间移动数据，这也避免了序列化和去序列化的额外成本。</p>
+<p>序列化和去序列化的额外成本。这也使我们能够减少网络 I&#x2F;O 延迟，并有助于克服目前推荐的 SBI 所产生的开销。</p>
+<p>具体实现：</p>
+<p>共享内存的通信机制：支持5G核心网络中不同网络功能(NF)之间的快速通信</p>
+<p>NF Manager单元： handle<br> incoming packets, manage the shared memory, and facilitate zero<br>copy communication between 5GC NFs</p>
+<p>5GC-NF拥有一个独一的服务ID和Rx&#x2F;Tx传输队列<br>这些环形缓冲区与用于数据包 指向共享内存中数据包的数据包描述符的管理器共享。<br>处理后 NF 会将元数据附加到数据包上，以指定该数据包的操作（发送到端口&#x2F;NF、丢弃 (发送到端口&#x2F;NF、丢弃），并将其放入发送环，供管理器处理。管理器处理该操作。</p>
+<ul>
+<li>要在NF 之间发送数据包时，源 NF 会在元数据中指定目标 NF 的 ID。</li>
+<li>管理器会将扁平数据结构的描述符复制到目标 NF 的环形缓冲区中，从而减轻序列化和HTTP 处理。</li>
+</ul>
+<p>我们用基于描述符的共享内存方法取代 SBI 和 N4 接口（图 1 所示）替换为基于描述符的共享内存方法，从而消除了大量开销。<br>我们利用 OpenNetVM 的共享内存 [60] 所提供的简洁抽象来实现 数据的序列化和无锁进程间通信。</p>
+<p>实现了generic cGO shim layer</p>
+<p>Shim是什么?<br>每一个 Containerd 或 Docker 容器都有一个相应的 “shim” 守护进程，这个守护进程会提供一个 API，Containerd 使用该 API 来管理容器基本的生命周期（启动&#x2F;停止），在容器中执行新的进程、调整 TTY 的大小以及与特定平台相关的其他操作。shim 还有一个作用是向 Containerd 报告容器的退出状态，在容器退出状态被 Containerd 收集之前，shim 会一直存在。</p>
+<p>shim 将 Containerd 进程从容器的生命周期中分离出来，具体的做法是 runc 在创建和运行容器之后退出，并将 shim 作为容器的父进程，即使 Containerd 进程挂掉或者重启，也不会对容器造成任何影响。这样做的好处很明显，你可以高枕无忧地升级或者重启 Containerd</p>
+<ul>
+<li>基于Go实现的网络功能可以使用DPDK的功能 以及ONVM提供的共享内存特性。</li>
+</ul>
+<h3 id="Zero-Cost-State-Update"><a href="#Zero-Cost-State-Update" class="headerlink" title="Zero-Cost State Update"></a>Zero-Cost State Update</h3><p>划分数据平面 UPF-C &amp; UPF-U</p>
+<p>转发规则和UPF状态都是存储在共享内存内的。</p>
+<p>使用共享的Huge Page + 两个hash table存储用户会话上下文位置的指针<br>TEID 和 UEIP 用于区分 UL 和 DL链路的流量。（上传链路和下载链路）</p>
+<p>PDRs and FARs：用来控制数据包转发行为</p>
+<h3 id="Security-Domain"><a href="#Security-Domain" class="headerlink" title="Security Domain"></a>Security Domain</h3><p>L25GC 中的安全域：云环境中可能运行着多种服务（可能由第三方开发）</p>
+<p>在云环境中运行，可能会出现窃听和数据篡改等安全问题。</p>
+<p>有必要将 L25GC 与其他应用程序隔离。</p>
+<p>我们利用了 [42] 的安全域设计。<br>L25GC 的信任模型假定 L25GC 的所有 NF 都是可信的、<br>这些 NF 共享一个私人内存池。<br>这些 NF 共享同一个节点上运行的其他应用程序无法访问的私有内存池。 节点上运行的其他应用程序无法访问。在 L25GC 启动时，作为 DPDKprimary 运行的 NF 管理器（图 3）会自动启动。<br>为 L25GC 中的 NF 创建一个私有共享存储器池。这个私有共享内存池在创建过程中指定了独特的 “共享数据文件前缀”[13]。</p>
+<p>L25GC 中的 NF 作为 DPDK 二级进程运行，使用 NF 管理器指定的相同文件前缀<br>NF 管理器指定的相同文件前缀来访问私有共享内存池。</p>
+<p>对于同一节点上由不同操作员管理的多个 L25GC 实例，每个实例都有一个唯一的文件前缀。操作员管理的多个 L25GC 实例，每个实例都有一个唯一的文件前缀，以保持其共享内存池与其他实例隔离。</p>
+<p>进一步增强L25GC 安全域设计的进一步增强将是增加一个准入控制机制，以验证寻求访问属于蜂窝运营商的专用内存池的网络节点。</p>
+<h2 id="智能切换缓冲"><a href="#智能切换缓冲" class="headerlink" title="智能切换缓冲"></a>智能切换缓冲</h2><p>hairpin: hairpin中文翻译为发卡。bridge不允许包从收到包的端口发出，比如bridge从一个端口收到一个广播报文后，会将其广播到所有其他端口。bridge的某个端口打开hairpin mode后允许从这个端口收到的包仍然从这个端口发出。</p>
+<p>直接实施 3GPP 移交规范的直接实施涉及在源 gNB 缓冲下行链路数据包。在源 gNB 上缓冲下行链路数据包，而源 gNB 的资源可能有限，特别是在小基站中。</p>
+<p>为了解决这个问题，我们利用 UPF 已经为寻呼操作提供的缓冲功能，而不增加任何额外的控制信息。这样做的另一个好处是避免通过源 gNB 进行发夹式路由。</p>
+<ul>
+<li>L25GC 不引入任何额外信息来启用缓冲。不过，它修改了控制平面（SMF）行为，以便在 UPF 为切换事件提供缓冲规则。</li>
+<li>当 UE 请求切换时，SMF 将发送数据包转发控制协议 (PFCP) 消息。SMF 向 UPF 发送数据包转发控制协议 (PFCP) 消息，为目标 gNB 分配新的 TEID。</li>
+<li>我们利用这一机会，在原始 PFCP报文的基础上附加一个 IE，利用PFCP 消息更新 PDR 和 FARaction，以缓冲数据包等。</li>
+</ul>
+<h2 id="快速规则匹配"><a href="#快速规则匹配" class="headerlink" title="快速规则匹配"></a>快速规则匹配</h2><p>由于 UPF-U 需要对每个到达的数据包进行 PDR 查询，以确定其转发策略，因此查询速度直接影响到数据平面的性能。<br>我们研究了不同的替代方案：线性搜索 (PDR-LL)、TSS（PDR-TSS）和分区排序 (PDR-PS)以降低大规模 PDR 查询的搜索复杂度。</p>
+<p>我们认为这对 5GC 的未来发展至关重要。</p>
+<p>线性查找 - TSS 和 PartitionSort</p>
+<p>PDR-TSS 和 PDR-PS 的搜索复杂度都比 PDR-LL 低。</p>
+<ul>
+<li>PDR-TSS 根据元组（如 PDI IE 字段）将 PDR 划分为多个子表，从而降低了搜索复杂度。同一子表中的 PDR 在每个元组中具有相同的前缀位、</li>
+<li>每个子表都组织为一个具有 O（1） 复杂度的哈希表，用于基于 TSS 遍历元组空间的 PDR 查找（即，一组从 PDR 转换的子表），直到找到匹配的 PDR。</li>
+</ul>
+<p>与基于链表的 PDR-LL 相比，当存在大量 PDR 时，PDR-TSS 搜索可实现更少的开销。包含 M 元素的链表可以是转换为 N 元组 （N ≤ M）。<br>但是，PDR-TSS 不能保证最佳的查找性能，因为分区子表的数量有一些变化。<br>在最坏的情况下，PDR-TSS可能具有与PDR-LL相同的搜索复杂性。PDR-TSS 搜索开销的可变性，加上需要软件哈希来查找子表，可能会导致高开销。</p>
+<p>PDR-PS：<br>PDR-PS通过利用多维二叉搜索来降低搜索复杂性。<br>与链表的顺序查找相比，PDR-PS 可以在排序的 PDR 中执行快速二进制搜索。</p>
+<p>类似于PDR-TSS，PDR-PS 将 PDR 分成多组，然后对这些组进行排序以进一步降低查找的复杂性。</p>
+<p>为了适应打包的 5GC，我们采用了许多 PDI IE（最多到 20） 以支持所需的丰富功能，包括防火墙、NAT和每流 QoS 处理（请参阅附录A 代表更多细节）。</p>
+<h2 id="通过状态复制实现弹性"><a href="#通过状态复制实现弹性" class="headerlink" title="通过状态复制实现弹性"></a>通过状态复制实现弹性</h2><p>external synchrony 外部的同步机制<br>避免了服务故障导致的性能缺陷</p>
+<p>系统实现：基于free5GC以及OpenNetVM（一个高性能的NFV平台，基于DPDK技术）</p>
+<img src="/2023/10/07/low-latency-5g/optimized_5gc.png" class="" title="经过作者优化后的5G核心网络构成方案">
+
+<p>后面就是详细解释作者如何实现以上的优化的。</p>
+<p>两种粒度的可恢复性</p>
+<p>Local resiliency</p>
+<ul>
+<li>local replica of each NF</li>
+<li>网络功能副本 通过 cgroup的freezer进行冻结 直到NF Manager唤醒这个NF再启动副本</li>
+<li>no-replay scheme 的方式进行同步 保证输出的commit只有一个</li>
+<li>NF不会将响应发送回客户端 直到本地的副本完成复制（由于处于同一个系统上 同步时间很短）</li>
+<li>如果出现故障：Manager直接拉起副本 保证了一致性</li>
+</ul>
+<p>Remote resiliency：当服务节点不可用</p>
+<p>引入外部的同步过程</p>
+<ul>
+<li>LB节点管理计数器 在每一条发送出去的消息上绑定一个计数器，在缓存区内维护消息的副本</li>
+<li>packet logger划分到4个不同的队列上去 UL-control, UL-data, DL-control, DL-data</li>
+<li>缓存的数据包被重新复制一次状态（在副本程序内）</li>
+</ul>
+<p>replica node挑选4个队列中counter之最小的作为重现数据包的开始，从而实现按照顺序进行状态的复制。</p>
+<ul>
+<li>主节点的本地备份：周期性发送状态的快照给远程的副本</li>
+<li>本地和远程都维护一个record用来处理和同步消息</li>
+</ul>
+<p>每一个UE的事件触发一次同步 从而可以在故障时完成数据包的恢复，防止重传；<br>5GC需要处理大量的控制平面事件，需要大量的event-based checkpointing</p>
+<p>Failure detector：探测网络服务是否出现了故障，Seamless-BFD</p>
+<img src="/2023/10/07/low-latency-5g/5gc_resiliency.png" class="" title="核心网络的弹性功能实现">
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/5G/" rel="tag"># 5G</a>
+              <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" rel="tag"># 云原生</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/05/28/mahjong/" rel="prev" title="mahjong">
+      <i class="fa fa-chevron-left"></i> mahjong
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/11/25/log-1126/" rel="next" title="log-1126">
+      log-1126 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E6%A1%86%E6%9E%B6%E7%9A%84%E6%8C%91%E6%88%98"><span class="nav-number">4.</span> <span class="nav-text">现有框架的挑战</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%91%E6%88%981%EF%BC%9A%E6%8E%A7%E5%88%B6%E6%B6%88%E6%81%AF%E7%9A%84%E5%A4%84%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">挑战1：控制消息的处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%91%E6%88%982%EF%BC%9A%E5%A4%8D%E6%9D%82%E7%9A%84%E4%BA%A4%E6%8E%A5%E6%B5%81%E7%A8%8B"><span class="nav-number">4.2.</span> <span class="nav-text">挑战2：复杂的交接流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%91%E6%88%983%EF%BC%9A%E5%BC%80%E9%94%80%E5%BE%88%E5%A4%A7%E7%9A%84%E8%A7%84%E5%88%99%E5%8C%B9%E9%85%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">4.3.</span> <span class="nav-text">挑战3：开销很大的规则匹配过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%91%E6%88%984%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%8A%9F%E8%83%BD%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%92%8C%E5%8F%AF%E6%81%A2%E5%A4%8D%E6%80%A7"><span class="nav-number">4.4.</span> <span class="nav-text">挑战4：网络功能的可靠性和可恢复性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-L25GC%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.</span> <span class="nav-text">3. L25GC的设计和实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E5%90%8C%E4%B8%80%E8%8A%82%E7%82%B9%E4%B8%8A%E6%95%B4%E5%90%88NF"><span class="nav-number">5.1.</span> <span class="nav-text">在同一节点上整合NF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Zero-Cost-State-Update"><span class="nav-number">5.1.1.</span> <span class="nav-text">Zero-Cost State Update</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Security-Domain"><span class="nav-number">5.1.2.</span> <span class="nav-text">Security Domain</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%99%BA%E8%83%BD%E5%88%87%E6%8D%A2%E7%BC%93%E5%86%B2"><span class="nav-number">5.2.</span> <span class="nav-text">智能切换缓冲</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E8%A7%84%E5%88%99%E5%8C%B9%E9%85%8D"><span class="nav-number">5.3.</span> <span class="nav-text">快速规则匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E7%8A%B6%E6%80%81%E5%A4%8D%E5%88%B6%E5%AE%9E%E7%8E%B0%E5%BC%B9%E6%80%A7"><span class="nav-number">5.4.</span> <span class="nav-text">通过状态复制实现弹性</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chalkydoge"
+      src="/images/header.jpg">
+  <p class="site-author-name" itemprop="name">Chalkydoge</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chalkydoge</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

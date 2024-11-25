@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chalkydoge.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="placeholder replace me!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ml_notes">
+<meta property="og:url" content="http://chalkydoge.github.io/2022/11/05/ml-notes/index.html">
+<meta property="og:site_name" content="doge的个人site">
+<meta property="og:description" content="placeholder replace me!">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://chalkydoge.github.io/ml-notes/nn.png">
+<meta property="og:image" content="http://chalkydoge.github.io/ml-notes/svm.jpg">
+<meta property="article:published_time" content="2022-11-05T04:10:50.000Z">
+<meta property="article:modified_time" content="2024-11-25T16:05:37.984Z">
+<meta property="article:author" content="Chalkydoge">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chalkydoge.github.io/ml-notes/nn.png">
+
+<link rel="canonical" href="http://chalkydoge.github.io/2022/11/05/ml-notes/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ml_notes | doge的个人site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">doge的个人site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://chalkydoge.github.io/2022/11/05/ml-notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/header.jpg">
+      <meta itemprop="name" content="Chalkydoge">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="doge的个人site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ml_notes
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-11-05 12:10:50" itemprop="dateCreated datePublished" datetime="2022-11-05T12:10:50+08:00">2022-11-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-26 00:05:37" itemprop="dateModified" datetime="2024-11-26T00:05:37+08:00">2024-11-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>placeholder replace me!</p>
+<span id="more"></span>
+
+<ol>
+<li><p>机器学习三要素</p>
+<ul>
+<li>映射函数</li>
+<li>目标函数</li>
+<li>设计算法</li>
+</ul>
+</li>
+<li><p>按照基本的分类</p>
+<ul>
+<li>分类算法</li>
+<li>回归算法</li>
+</ul>
+</li>
+<li><p>重点</p>
+<ul>
+<li>算法的设计, 物理含义, 适用场景;</li>
+<li>映射函数&#x2F;损失函数的设计, 公式含义;</li>
+</ul>
+</li>
+</ol>
+<h1 id="期中复习"><a href="#期中复习" class="headerlink" title="期中复习"></a>期中复习</h1><h2 id="分类算法"><a href="#分类算法" class="headerlink" title="分类算法"></a>分类算法</h2><p>线性模型分类器</p>
+<ol>
+<li>分类 与 回归 的区别</li>
+</ol>
+<p>回归: 对于每一个输入$x$ 输出一个预测$y$为实数值;</p>
+<p>分类: $X-&gt;Y &#x3D; C_k$ 也就是映射出的值是一个标签(K &#x3D; 2, K &gt; 2)的情况</p>
+<ul>
+<li>1-of-K 编码 (1, 0, 0, 0, 0) - (0, 0, 0, 0, 1)</li>
+</ul>
+<p>输入空间被划分成 决策区域，边界就是决策平面&#x2F;决策边界</p>
+<p>判别函数 $F(X) &#x3D; C_K$ discriminant function</p>
+<p>或者 概率函数$P(C_K|X)$ 指的是一个输入属于某一类别的概率大小</p>
+<ul>
+<li><p>基于概率的决策分类模型: 对于$P(C_K | X)$进行概率预测, 建模</p>
+</li>
+<li><p>或者 生成模型</p>
+</li>
+<li><p>$P(X|C_K)$ 我们的预测值,给定标签$C_K$ 问出现输入为$X$的概率是多少?</p>
+</li>
+<li><p>$P(C_K) $ 先验已知</p>
+</li>
+<li><p>利用贝叶斯 推算后验概率 $P(C_K | X) &#x3D; \frac{P(X|C_K)P(C_K)}{P(X)}$</p>
+</li>
+</ul>
+<p>机器学习的两类模型: 判别模型和生成模型</p>
+<p>基础线性模型 $y(x) &#x3D; w^Tx+b$<br>$y(x) &#x3D; f(w^Tx + b)$</p>
+<p>泛化的线性模型- 分布在$(0, 1)$之间</p>
+<p>$f(.)$是激活函数</p>
+<ul>
+<li>决策平面仍然是x的线性函数,即使激活函数非线性</li>
+</ul>
+<h2 id="分类算法整理-Classification"><a href="#分类算法整理-Classification" class="headerlink" title="分类算法整理(Classification)"></a>分类算法整理(Classification)</h2><p>输入变量$x$, 模型$y &#x3D; f(w,x)$, 输出$y_k \in {C_1, …, C_k}$ 离散值</p>
+<h3 id="1-感知机-Perceptrons"><a href="#1-感知机-Perceptrons" class="headerlink" title="1. 感知机 Perceptrons"></a>1. 感知机 Perceptrons</h3><p><strong>模型</strong></p>
+<p>单层神经元模型</p>
+<p>模型可以表示为一个广义上的线性模型(关于基函数basis-function)</p>
+<ul>
+<li>$x$为我们的输入变量, $\phi(x)$为基函数, $w$为待学习的参数</li>
+</ul>
+<p>$$<br>y(x) &#x3D; f(w^T\phi(x))<br>$$</p>
+<p>这里的<strong>非线性</strong>激活函数 $f(*) &#x3D; sgn(x)$ 也就是符号阶跃函数<br>即 $f(a) &#x3D; 1, a \geq 0;\ f(a) &#x3D; -1, a \lt 0$</p>
+<p><strong>评价标准</strong></p>
+<ul>
+<li>(判别模型)错分的实例数量</li>
+<li>(生成模型)概率分布</li>
+</ul>
+<p>例如输出变量$t \in {-1, +1}$ 表示二分类的$C_1, C_2$</p>
+<p>那么有$1 &#x3D; t &#x3D; w^T\phi(x), t\in C_1, t &gt; 0$</p>
+<p>否则$-1 &#x3D; t &lt; 0$</p>
+<p>误差函数</p>
+<ul>
+<li>定义$\phi_i &#x3D; \phi(x_i)$ 即对应第$i$个实例向量</li>
+<li>$E(w) &#x3D; -\sum_{\phi_i \in M} w^T \phi_i t_i$ ，实际上就是错分类的数量</li>
+</ul>
+<p>对这个函数进行梯度下降可以求解最优解；</p>
+<p>学习过程：SGD</p>
+<p>$w’ &#x3D; w - \eta \frac{\partial E}{\partial w} &#x3D; w + \eta \phi_i t_i$</p>
+<ul>
+<li><p>如果存在错误实例&#x2F;$E(w)$大于0，就不断更新$w$</p>
+</li>
+<li><p>收敛性证明: 数据实例线性可分情况下始终会收敛</p>
+</li>
+</ul>
+<p>简单的证明:</p>
+<p>当前的损失<br>$$E(w) &#x3D; -w\phi(x_i)y_i$$</p>
+<p>更新后<br>$$<br>E(w’) &#x3D; -w’\phi(x_i)y_i &#x3D; -(w+\eta \phi_i t_i)\phi(x_i)y_i &#x3D; E(w) - \eta (\phi_i y_i)^T \phi_i t_i<br>$$</p>
+<p>而后面这一项由定义可知总是非负数;因此如果存在最优解总是会在有限时间内收敛.</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
+<li>优点: 简单，对线性可分问题总是可求解，可扩展；</li>
+<li>缺点：受数据影响大，无法支持非线性可分问题，学习率选取？</li>
+</ul>
+<h3 id="2-KNN"><a href="#2-KNN" class="headerlink" title="2. KNN"></a>2. KNN</h3><h4 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h4><p>输入: 训练数据集<br>$$<br>T &#x3D; {(x_1,y_1), …, (x_n, y_n)}<br>$$</p>
+<p>输出: 实例 $x$ 所属的类$y$</p>
+<ul>
+<li>根据给定的距离计算方式，在T中寻找$x$最近的k个点，这个区域记作$N_k(x)$</li>
+<li>在区域$N_k(x)$内进行选择，取最多的出现标签</li>
+</ul>
+<p>所以得出最终的推测结果$y$</p>
+<p>$$<br>y &#x3D; argmax_{c_j} \sum _{x_i \in N_k(x)} I(y_i &#x3D; c_j)<br>$$</p>
+<h4 id="误差函数"><a href="#误差函数" class="headerlink" title="误差函数"></a>误差函数</h4><ul>
+<li>距离度量的选择</li>
+</ul>
+<p>L1距离 $L_1(x_i,x_j)$</p>
+<p>L2距离 $L_2(x_i,x_j)$</p>
+<p>Lp距离 &#x3D;&#x3D; Minkowski距离 $L_p(x_i,x_j) &#x3D; (\sum_{l&#x3D;1}^n |x_i^l - x_j^l|^p)^{\frac{1}{p}}$</p>
+<ul>
+<li>k值大小的选择</li>
+</ul>
+<p>较小的$k$: 敏感 容易被噪声点影响, 学习的近似误差会减小；但是估计误差会增大</p>
+<p>较大的$k$: 有效减小学习的估计误差，但是近似误差会变大</p>
+<ul>
+<li>多数表决原则</li>
+</ul>
+<p>错误分类的概率 $P(Y \neq F(x)) &#x3D; 1 - P(Y &#x3D; F(x))$</p>
+<p>给定领域$N_k(x)$ 那么错误分类的概率等于 $1 - \frac{1}{k}\sum_{x_i \in  N_k(x)} I(y_i &#x3D; c_j)$</p>
+<p>为了尽可能缩小错分概率 &#x3D;&#x3D; 尽可能增大分类正确的概率</p>
+<h4 id="KNN的实现-kd-tree"><a href="#KNN的实现-kd-tree" class="headerlink" title="KNN的实现-kd tree"></a>KNN的实现-kd tree</h4><p>给定一个目标点，首先搜索最近邻，找到包含目标点的kd-node，然后依次回退到它的parent节点，不断寻找与目标点距离最近的节点直到找不到更近的节点。</p>
+<ul>
+<li><p>kd-node 每一个节点对应了k-dimension种某一个维度的二分区域结果，叶子节点中只包含一个实例点</p>
+</li>
+<li><p>在kd树上搜索(K)最近邻可以高效利用节点的性质完成</p>
+</li>
+</ul>
+<h3 id="3-朴素贝叶斯"><a href="#3-朴素贝叶斯" class="headerlink" title="3. 朴素贝叶斯"></a>3. 朴素贝叶斯</h3><p>模型在给出已知的样本训练集分布$p(x)$以及此时的先验输出概率$p(y)$, 试图学习条件概率$p(y|x)$的分布模型, 使得其表现的<strong>最好</strong>, 这就是贝叶斯学习的基本想法.</p>
+<h3 id="4-Logistic回归-最大熵模型"><a href="#4-Logistic回归-最大熵模型" class="headerlink" title="4. Logistic回归(最大熵模型)"></a>4. Logistic回归(最大熵模型)</h3><p>逻辑斯蒂回归-分类常用的算法</p>
+<p>引入：bayes公式&#x3D;&gt; logistc函数<br>$$<br>P(C_1 | x) &#x3D; \frac{p(x|C_1) P(C_1)}{p(x|C_1)P(C_1) + p(x|C_2)P(C_2)} &#x3D; \frac{1}{1 + e^-a} &#x3D; \sigma(a)<br>$$</p>
+<p>那么求解$a &#x3D; ln \frac{p(x|C_1)P(C_1)}{p(x|C_2)P(C_2)}$  (后面可以看到实际上就是<strong>几率</strong>)</p>
+<h4 id="模型-1"><a href="#模型-1" class="headerlink" title="模型"></a>模型</h4><ul>
+<li><p>logistic函数 $\sigma(x) &#x3D; \frac{1}{1+e^{-x}}$</p>
+</li>
+<li><p>对于二分类问题 定义几率<br>$$<br>logit &#x3D; \frac{p(c_1)}{p(c_2)} &#x3D; \frac{p(c_1)}{1 - p(c_1)}<br>$$</p>
+</li>
+<li><p>logistic函数的反函数就是 ln几率</p>
+</li>
+</ul>
+<p>$x &#x3D; ln(\frac{\sigma(x)}{1 - \sigma(x)})$</p>
+<ul>
+<li>logistic函数作为激活函数: 使得我们的判别结果可以理解为<strong>后验概率</strong></li>
+</ul>
+<p>多分类问题下的logistic函数</p>
+<ul>
+<li>标准化 exp&#x2F;softmax函数</li>
+</ul>
+<p>$$<br>P(C_k|x) &#x3D; \frac{p(x|C_k) P(C_k)}{\sum_j p(x|C_j)P(C_j)} &#x3D; \frac{exp(a_k)}{\sum_j exp(a_j)}, \ where\ a_k &#x3D; ln\ p(x|C_k)P(C_k)<br>$$</p>
+<p>以上讨论的都是离散取值的情况，对于连续的情况，我们假设样本关于标签取值是正态分布</p>
+<h4 id="评价标准"><a href="#评价标准" class="headerlink" title="评价标准"></a>评价标准</h4><p>定义误差函数(交叉熵)</p>
+<p>对于一个数据集${x_n, t_n}$, $t_n \in {0,1}$</p>
+<ul>
+<li>输出为标签$t$的概率似然函数可以写作是:</li>
+</ul>
+<p>$P(t|w) &#x3D; \Pi_{n&#x3D;1}^N y_n^{t_n} (1 - y_n)^{1 - t_n}$ 也就是每一个分量取到正确值的概率之积</p>
+<p>损失函数就是它的负对数:</p>
+<ul>
+<li>$E(w) &#x3D; -ln P(t|w) &#x3D; -\sum_{n&#x3D;1}^N(t_n ln y_n + (1 - t_n) ln (1 - y_n))$</li>
+</ul>
+<p>也被称为交叉熵误差，其中$y_n &#x3D; \sigma(a_n) &#x3D; \sigma(w^Tx + b) &#x3D; \sigma(w^T\phi)$</p>
+<h4 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h4><ul>
+<li><p>logistic函数与对数几率;</p>
+</li>
+<li><p>误差函数定义为交叉熵损失($-ln P(t|w)$), 对后验概率的对数取负数;</p>
+</li>
+<li><p>多分类情况 &#x3D;&gt; softmax函数</p>
+</li>
+<li><p>$P(t|w) &#x3D; \sigma(a) &#x3D; \sigma(w^Tx+b)$ 可以看出对数几率 关于输入$x$是一个线性函数，这也就是模型的本质</p>
+</li>
+</ul>
+<h3 id="5-决策树"><a href="#5-决策树" class="headerlink" title="5. 决策树*"></a>5. 决策树*</h3><h3 id="6-SVM-线性-核方法"><a href="#6-SVM-线性-核方法" class="headerlink" title="6. SVM(线性, 核方法)"></a>6. SVM(线性, 核方法)</h3><p><strong>SVM-支持向量机</strong></p>
+<ul>
+<li><p>输入: 样本集合 $T &#x3D; {(x_1, y_1), …, (x_n, y_n)}$, $x$为输入变量, $y$为输出值(eg. 属于的类别)</p>
+</li>
+<li><p>输出: 我们的SVM模型 $y &#x3D; w^Tx + b$</p>
+</li>
+</ul>
+<p>$w^T &#x3D; w^{\star}$, $b &#x3D; b^{\star}$</p>
+<p>满足条件 $maxmin(f(x_i)) &#x3D; max(min|{w^{*}}^{T}x + b|)$</p>
+<p>其中 我们记录$\rho &#x3D; |w^{T}x + b|$ 为样本点的绝对距离, 由于此时我们的系数$w^*$的模大小是1, 因此实际的距离$y_i*f(w^Tx+b)&#x2F;|w|$也就是上式的值(由于我们是一个二分类问题, $y_i$取值为${1, -1}$)</p>
+<ul>
+<li><p>映射函数: $y &#x3D; f(x_i) &#x3D; w^Tx + b$</p>
+</li>
+<li><p>目标: 最大化 <strong>样本点到 决策平面的最小距离</strong>, 此时落在这个最小距离上的样本被称为支持向量</p>
+</li>
+<li><p>目标函数 $min_w{ \frac{1}{2} |w|^2},\ s.t.\ \forall_{i &#x3D; 1}^n y_i(w^Tx_i + b) \geq 1$</p>
+</li>
+</ul>
+<p>要证明我们的分类器SVM能够收敛, 我们这里沿用感知机模型的结论(感知机不要求这个函数距离的最小, 只要求分类正确因此可以存在很多个)</p>
+<ul>
+<li><p>收敛性, 最多经过$(b^2 + 1)(R^2 + 1) &#x2F; \rho^2$ 次更新,就能找到答案($R &#x3D; max_i ||x_i||$)</p>
+</li>
+<li><p>SVM的重要参数: $\rho$ 几何距离大小(当$|w| &#x3D; 1$时也就是函数距离)</p>
+</li>
+</ul>
+<p>$\rho$(margin) 决定了:</p>
+<ol>
+<li>两个类是如何区分的</li>
+<li>算法收敛的速度</li>
+</ol>
+<p>SVM定义了函数距离</p>
+<p>$\rho_f(x, y) &#x3D; y \times f(x)$</p>
+<p>$min\rho_f &#x3D; \rho_{min} &#x3D; min(\rho_f(x_i, y_i))$</p>
+<p>目标就是找到一个模型满足:</p>
+<p>$f* :&#x3D; argmax_f\rho_{min} &#x3D; argmax_f min\rho_f(x_i,y_i)$</p>
+<p>实际上也就是<br>$y &#x3D; w^Tx + b$, 寻找一组参数$w^* &#x3D; (w,b)$, 使得$\rho &#x3D; min(y_i (\frac{w\cdot x}{|w|} + \frac{b}{w}))$ 最大(间隔最大)</p>
+<p>当我们的$\rho &gt; 0$时, SVM是硬间隔支持向量机。</p>
+<p>以上是基本的SVM模型, 而如何更好地求解SVM引入了对偶形式地SVM</p>
+<p><strong>原问题</strong></p>
+<p>$argmax_{w,b}\ \rho,\ s.t.\ \frac{y_i(w^Tx+b)}{|w|} \geq \rho$</p>
+<p>等价于</p>
+<ul>
+<li>标准形式下(最近距离$\rho &#x3D; 1$)的目标函数 $min_w{ \frac{1}{2} |w|^2},\ s.t.\ \forall_{i &#x3D; 1}^n y_i(w^Tx_i + b) \geq 1$</li>
+</ul>
+<p>引入Lagrange乘数项</p>
+<ul>
+<li>转为求解 $L(w,b,\alpha) &#x3D; \frac{1}{2}|w|^2 - \sum_{i &#x3D; 1}^n\alpha_i (y_i(w^Tx_i + b) - 1))$</li>
+</ul>
+<p>求导数为0得到中间结果</p>
+<p>$w &#x3D; \sum_{i &#x3D; 1}^n \alpha_i y_i x_i$</p>
+<p>$\sum_{i  &#x3D;1}^n\alpha_i y_i &#x3D; 0$</p>
+<p>代入原式 $L(w,b,\alpha) &#x3D; \frac{1}{2}|w|^2 - \sum_{i &#x3D; 1}^n\alpha_i (y_i(w^Tx_i + b) - 1))$</p>
+<p>得到化简结果(w化简自然引入<strong>内积</strong>, 这也是后面非线性&#x2F;核方法的重要基础)</p>
+<p>$L(\alpha) &#x3D; \sum_{i &#x3D; 1}^n\alpha_ -  \frac{1}{2}\sum_{i&#x3D;1}^n\sum_{j&#x3D;1}^n y_iy_j \alpha_i \alpha_j (x_i \cdot x_j)$</p>
+<p>使得$\alpha_i \geq 0,\ 1\leq i \leq n$成立;</p>
+<p>以及 $\sum_{i &#x3D; 1}^n \alpha_i y_i &#x3D; 0$</p>
+<p>求出$\alpha$ 得到了 $w^*$</p>
+<p>观察$f(x) &#x3D; w^Tx + b &#x3D; \sum_{i &#x3D; 1}^n \alpha_i y_i x_i^T x + b$</p>
+<p>对于所有支持向量$x_j$满足$y_jf(x_j) &#x3D; 1$</p>
+<p>也就是说$f(x_j) &#x3D; \sum\alpha_i y_i (x_i \cdot x_j) + b$</p>
+<p>$b^* &#x3D; \frac{1}{N_s}\sum_{j\in S}(y_j - \sum_{i\in S} \alpha_i y_i x_i \cdot x_j)$<br>(其实就是所有支持向量的均值)</p>
+<p>于是我们的判别函数<br>$f(x) &#x3D; sgn(\sum_{i &#x3D; 1}^n\alpha_i^* y_i x_i^T x + b^* )$就求出来了;</p>
+<hr>
+<ol start="2">
+<li>Non-Linear SVM 非线性支持向量机</li>
+</ol>
+<ul>
+<li><p>$L(\alpha) &#x3D; \sum_{i &#x3D; 1}^n\alpha_i -  \frac{1}{2}\sum_{i&#x3D;1}^n\sum_{j&#x3D;1}^n y_iy_j \alpha_i \alpha_j (x_i \cdot x_j)$</p>
+</li>
+<li><p>这里将原先的线性SVM内积换成核函数$K(x_i, x_j)$</p>
+</li>
+</ul>
+<p>得到代入核函数的内积</p>
+<ul>
+<li>$L(\alpha) &#x3D; \sum_{i &#x3D; 1}^n\alpha_i -  \frac{1}{2}\sum_{i&#x3D;1}^n\sum_{j&#x3D;1}^n y_iy_j \alpha_i \alpha_j (K(x_i, x_j))$</li>
+</ul>
+<p>使得$\alpha_i \geq 0,\ 1\leq i \leq n$成立;</p>
+<p>以及 $\sum_{i &#x3D; 1}^n \alpha_i y_i &#x3D; 0$</p>
+<p>最终我们的分类函数可以表示为:</p>
+<p>$f(x) &#x3D; \sum_{i &#x3D; 1}^n\alpha_i^* y_i K(x_i, x) + b^*$</p>
+<p>为了能够更快求解Kernel-product, 我们对于给定的函数$k: X^2 \to K$, 以及原空间的向量模式$(x_1,…,x_n)\in X$</p>
+<p>Gram矩阵$K_{ij} &#x3D; k(x_i,x_j)$(内积矩阵)</p>
+<p>于是就可以更快求解上面的目标式。</p>
+<p>常用的核函数</p>
+<ul>
+<li><p>高斯核函数 $k(x,x’) &#x3D; e^{-\frac{|x-x’|^2}{2\sigma^2}}$</p>
+</li>
+<li><p>多项式核函数 $k(x,x’) &#x3D; (x \cdot x’ + c)^d$</p>
+</li>
+</ul>
+<ol start="7">
+<li>MLP 多层感知机&#x2F;Feed Forward networks</li>
+</ol>
+<p>MLP的结构:</p>
+<p><img src="/./ml-notes/nn.png" alt="nn"></p>
+<ul>
+<li>输入层</li>
+<li>隐层</li>
+<li>输出层</li>
+</ul>
+<p>特点:</p>
+<ul>
+<li><p>输入层大小为输入向量的维数</p>
+</li>
+<li><p>隐层之间的神经元是全连接的</p>
+</li>
+<li><p>隐层神经元的激活函数是非线性的</p>
+</li>
+<li><p>对于网络中的第j个神经元而言, 它所收到的响应为 $net_j &#x3D; \sum_{i &#x3D; 1}^d w_{ji} x_i + w_{j0} &#x3D; \sum_{i &#x3D; 0}^d w_{ji} x_i &#x3D; w_j^T \cdot x$</p>
+</li>
+<li><p>因此, 第j个神经元的输出就是$y_j &#x3D; g(net_j)$</p>
+</li>
+<li><p>对于输出层的第$k$个神经元, 它的信号相应就是$net_k &#x3D; \sum_{j &#x3D; 1}^{n_H} w_{kj} y_j + w_{k0} &#x3D; \sum_{j&#x3D;0}^{n_H}w_{kj} y_j &#x3D; w^T_k \cdot y$</p>
+</li>
+<li><p>最终对于标签分类为$k$的输出就是$y_k &#x3D; f(net_k) &#x3D; f(w^T_k \cdot y) &#x3D; f(\sum_{j &#x3D; 0}^{n_H} w_{kj} f(net_j)) &#x3D; f(\sum_{j &#x3D; 0}^{nH} w_{kj} f(\sum_{i &#x3D; 0}^d w_{ji} x_i))$</p>
+</li>
+<li><p>对于二分类问题而言, $y_k \in {1, -1}$</p>
+</li>
+<li><p>对于多分类问题, $y_k &#x3D; f(net_k) &#x3D; g_k(x)$</p>
+</li>
+</ul>
+<hr>
+<p>MLP采用的不同Loss function</p>
+<ul>
+<li>SSE Sum of Squared Loss</li>
+</ul>
+<blockquote>
+<p>物理意义上, 就是实际输出与我们预测的输出之间的方差</p>
+</blockquote>
+<p>$$<br>E(w) &#x3D; \frac{1}{2} \sum_{n &#x3D; 1}^N (y(w, x_n) - t_n)^2<br>$$</p>
+<ul>
+<li>概率上的解释: 网络输出给出了一种概率上的分布, 使用概率的好处 1. 可以引入非线性 2. 更多的loss选择</li>
+</ul>
+<p>从概率论的角度分析</p>
+<p>NN学习到的是一个关于输出变量$t$的概率分布</p>
+<p>$P(t|w, x) &#x3D; N(t| y(w,x), \beta^{-1})$</p>
+<ul>
+<li>假设初始的输入数据$x$关于输出标签$t$的取值是一个高斯分布, 期望$\mu &#x3D; y(w,x)$ 方差为$\beta^{-1}$</li>
+</ul>
+<p>假设我们的输入是独立同分布的, 那么对于所有的标签$t&#x3D;(t_n)_{n&#x3D;1}^N$<br>我们列出似然函数</p>
+<p>$P(t|w,x,\beta) &#x3D; \Pi_{n&#x3D;1}^n P(t_n|w,x_n, \beta)$</p>
+<p>$P(t_n | w, x_n, \beta) &#x3D; \frac{\beta}{\sqrt 2\pi} exp(\frac{-\beta}{2}(t_n - y(w,x_n)^2))$</p>
+<p>对数似然函数就是<br>$L &#x3D; \sum_{n&#x3D;1}^N ln(P(t_n | w,x_n,\beta)) &#x3D;\frac{N}{2}(ln\beta - ln 2\pi) - \frac{\beta}{2}(y(w,x_n) - t_n)^2 $</p>
+<p>让对数似然函数最大 <strong>等价于</strong> 让 $\frac{\beta}{2}(y(w,x_n) - t_n)^2$ 最小化,正好就是平方误差SSE最小化!</p>
+<blockquote>
+<p>因此从概率角度我们发现概率最大 &#x3D;&#x3D; 误差最小, 可以转变为一个学习概率分布的问题</p>
+</blockquote>
+<hr>
+<p>使用的误差函数有:</p>
+<p>Cross-Entrophy Loss 交叉熵</p>
+<p>对于一个二分类问题而言</p>
+<p>$t$是输出变量;</p>
+<ul>
+<li>$t &#x3D; 1$对于$C1$;</li>
+<li>$t &#x3D; 0$对于$C2$;</li>
+</ul>
+<p>网络有单个输出, 输出激活函数是</p>
+<p>$$<br>y &#x3D; \sigma(a) &#x3D; \frac{1}{1 + e^{-a}}<br>$$</p>
+<p>那么输出为$t$的概率是:<br>$$<br>P(t|X, w) &#x3D; y(x, W)^t (1 - y(x, W))^{1 - t}<br>$$</p>
+<p>相应的误差函数</p>
+<p>$$<br>E(w) &#x3D; -\sum_{n &#x3D; 1}^N{t_n ln y_n + (1 - t_n) ln(1 - y_n) }<br>$$</p>
+<p>K分类 输出激活函数为 logistic函数</p>
+<ul>
+<li>输出标签值为$t$的概率就是<br>$$<br>P(t|w,x) &#x3D; \Pi_{k&#x3D;1}^K y_k(w,x)^{t_k} (1 - y_k(w, x))^{1 - t_k}<br>$$</li>
+</ul>
+<p>对应的损失函数<br>$$<br>E(w) &#x3D; -\sum_{n&#x3D;1}^N\sum_{k&#x3D;1}^K{t_{nk} ln y_{nk} + (1 - t_{nk}) ln (1 - y_{nk})}<br>$$</p>
+<p>1-of-K coding</p>
+<ul>
+<li>不断地用二分类的方式区分标签值为k的概率与非k的概率</li>
+<li>输出$y_k$的概率公式: $y_k(w,x) &#x3D; \frac{exp(a_k(w,x))}{\sum_j exp(a_j(w,x))}$</li>
+</ul>
+<hr>
+<p>多层感知机的BP算法</p>
+<ul>
+<li><p>Error BackPropagation</p>
+</li>
+<li><p>从隐藏层到输出层的学习</p>
+</li>
+</ul>
+<p>由于输出层 第$k$个单元的响应为</p>
+<p>$net_k &#x3D; \sum_{j&#x3D;0}^{n_H} w_{kj} y_j$</p>
+<p>所以对于给定的$E(w)$, 关于隐层到输出层系数的梯度</p>
+<p>$$<br>\frac{\partial E}{\partial w_{kj}} &#x3D; \frac{\partial E}{\partial net_k}<br>\frac{\partial net_k}{\partial w_{kj}}<br>&#x3D; -\delta_{k} \frac{\partial net_k}{\partial w_{kj}}<br>$$</p>
+<ul>
+<li>$\delta_k$是第$k$个单元的sensitivity(敏感度)</li>
+</ul>
+<p>假设激活函数f是可微分的</p>
+<p>$$<br>\delta_k &#x3D; \frac{\partial E}{\partial net_k}<br>&#x3D; \frac{\partial E}{\partial y_k}<br>\frac{\partial y_k}{\partial net_k}<br>&#x3D;(t_k - y_k) f’(net_k)<br>$$</p>
+<p>(因为这里的误差函数就是SSE)</p>
+<p>又因为 $net_k &#x3D; w_{kj}^T \cdot y_j$<br>所以$\frac{\partial net_k}{\partial w_{kj}} &#x3D; y_j$</p>
+<p>最终得到隐层-输出层的梯度学习规则</p>
+<p>$$<br>\Delta_{kj} &#x3D; \eta \delta_k y_j<br>&#x3D; \eta (t_k - y_k) f’(net_k) y_j<br>$$</p>
+<p>其中$\eta$是我们定义的学习率</p>
+<ul>
+<li>从输入层到隐藏层的学习</li>
+</ul>
+<p>第$j$个神经元的响应$net_j &#x3D; \sum_{i&#x3D;0}^d w_{ji}x_i$</p>
+<p>而根据我们的结构, 可以列出以下的梯度关系<br>$$<br>\frac{\partial E}{\partial w_{ji}}<br>&#x3D; \frac{\partial E}{\partial y_j}<br>\frac{\partial y_j}{\partial net_j}<br>\frac{\partial net_j}{\partial w_{ji}}<br>$$</p>
+<p>由于 $\frac{\partial net_j}{\partial w_{ji}} &#x3D; x_i$<br>以及 $\frac{\partial y_j}{\partial net_j} &#x3D; f’(net_j)$</p>
+<p>还有误差函数关于输出y的导数<br>$$<br>\frac{\partial E}{\partial y_j}<br>&#x3D; \frac{\partial}{\partial y_j}[\frac{1}{2}\sum_{k&#x3D;1}^c (t_k - y_k)^2]<br>&#x3D; -\sum_{k&#x3D;1}^c(t_k-y_k) \frac{\partial y_k}{y_j}<br>&#x3D; -\sum_{k&#x3D;1}^c(t_k-y_k) \frac{\partial y_k}{net_k} \frac{\partial net_k}{y_j}<br>&#x3D;  -\sum_{k&#x3D;1}^c(t_k-y_k) f’(net_k) w_{kj}<br>$$</p>
+<p>类似的我们定义一个隐层单元的敏感度<br>$\delta_j &#x3D; f’(net_j) \sum_{k&#x3D;1}^c w_{kj} \delta_k$</p>
+<p>那么对于输入层-隐层的学习规则我们得到</p>
+<p>$$<br>\Delta w_{ji} &#x3D; \eta \delta_j x_i &#x3D; \eta f’(net_j) [\sum_{k&#x3D;1}^c w_{kj}\delta_k] x_i<br>$$</p>
+<hr>
+<p>MLP在实际应用中需要考虑的问题</p>
+<ol>
+<li><p>激活函数的选择: 非线性&#x2F;线性, 单调性, 连续性</p>
+</li>
+<li><p>隐层的神经元数量 $n_H \to n&#x2F;10$</p>
+</li>
+<li><p>初始网络的权重</p>
+</li>
+<li><p>学习率大小$\eta &#x3D; 0.1$</p>
+</li>
+<li><p>权重的衰减</p>
+</li>
+<li><p>隐层的数量</p>
+</li>
+<li><p>目标函数的选择</p>
+</li>
+</ol>
+<h2 id="回归算法整理"><a href="#回归算法整理" class="headerlink" title="回归算法整理"></a>回归算法整理</h2><h3 id="1-Linear-Regression"><a href="#1-Linear-Regression" class="headerlink" title="1. Linear Regression"></a>1. Linear Regression</h3><p>输入: 训练数据集$T &#x3D; {(x_1,y_1), …, (x_n, y_n)}$</p>
+<p>输出: regression-function 回归函数 $y &#x3D; f(w,x) &#x3D; w^Tx + b$</p>
+<p>目标: 最小化误差函数 例如MSE, $min_w E(w) &#x3D; \frac{1}{n} |y(w,x) - y|^2$</p>
+<p>找到的最优参数 $w^* &#x3D; argmin_{w}\sum_{i&#x3D;1}^n(y(w,x) - y)^2$</p>
+<p>寻找最优参数的方法:</p>
+<ol>
+<li><p>SGD 随机梯度下降;</p>
+</li>
+<li><p>解析法: 最小二乘解$(X^TX)^{-1}X^Ty$</p>
+</li>
+</ol>
+<h3 id="2-Lasso-Ridge"><a href="#2-Lasso-Ridge" class="headerlink" title="2. Lasso, Ridge"></a>2. Lasso, Ridge</h3><p>Ridge</p>
+<p>目标: 最小化误差函数 $L &#x3D; \sum_{i&#x3D;1}^n (y_i - w^Tx_i)^2 + \lambda ||w||^2$</p>
+<ul>
+<li>$w^* &#x3D; argmin_w (\sum_{i&#x3D;1}^n (y_i - w^Tx_i)^2 + \lambda ||w||^2)$</li>
+</ul>
+<p>解析算出的最优解$\boldsymbol{w} &#x3D; (X^TX + \lambda I)^{-1} X^T y$ 或者用SGD</p>
+<p>Lasso</p>
+<p>目标: 最小化误差函数 $L &#x3D; \sum_{i&#x3D;1}^n (y_i - w^Tx_i)^2 + \lambda ||w||_1$</p>
+<ul>
+<li>最优参数 $w^* &#x3D; argmin_w (\sum_{i&#x3D;1}^n (y_i - w^Tx_i)^2 + \lambda ||w||_1)$</li>
+</ul>
+<p>注意次数我们不能通过求导数的方式得到最优解 需要用 坐标下降的方法</p>
+<ul>
+<li>随机初始化系数 $\boldsymbol{w}$</li>
+<li>遍历各个维度的$w_i$, 固定其余的$w_j, (i \neq j)$, 将$w_i$视为变量求出最优解</li>
+<li>迭代上一个步骤直到各个维度的参数都不变化(或者达到最大迭代次数)</li>
+</ul>
+<h3 id="3-SVR"><a href="#3-SVR" class="headerlink" title="3. SVR"></a>3. SVR</h3><p>SVR是SVM的一个重要应用.</p>
+<ul>
+<li>SVR所寻找的最优hyper-plane目标是 “使得所有的样本点距离超平面的偏差最小”</li>
+</ul>
+
+
+<p><img src="/./ml-notes/svm.jpg" alt="svm" title="SVM/SVR图示"></p>
+<h4 id="线性SVR"><a href="#线性SVR" class="headerlink" title="线性SVR"></a>线性SVR</h4><p>输入: $T &#x3D; {(x_1,y_1), …, (x_n,y_n) }$</p>
+<p>输出: 回归预测结果$\hat y &#x3D; (w^Tx + b)$</p>
+<p>模型: 线性回归函数$y(w,b) &#x3D; w^Tx + b$</p>
+<p>目标函数:</p>
+<p>这里是两边采用了不同的松弛程度($\xi, \xi^{\star}$)</p>
+<p>$$<br>min_{w,b,\xi} \frac{1}{2} ||w||^2 + C \sum_i (\xi_i+ \xi_i^*) \<br>s.t.\ y_i - (w^Tx_i + b) \leq \epsilon + \xi_i \<br>(w^Tx_i + b) - y_i \leq \epsilon + \xi_i^{\star}<br>\xi_i, \xi_i^{\star} \geq 0,\ i &#x3D; 1,2,…,n<br>$$</p>
+<p>损失函数: 0-1 Loss &#x3D;&gt; 代理损失函数 surrogate loss</p>
+<ul>
+<li>hinge_loss: $l(z) &#x3D; max(0, 1 - z)$</li>
+<li>指数损失</li>
+<li>对数损失</li>
+</ul>
+<p>以线性SVR, 两边的误差间距不一样的情况为例, 求解其对偶问题</p>
+<p>因为我们引入了4个约束条件, 所以引入4个乘子$\mu_i, \mu_i^{\star}, \alpha_i, \alpha_i^{\star}$</p>
+<p>$$<br>L(w,b,\alpha,\alpha^{\star},\xi,\xi^{\star},\mu,\mu^{\star})<br>&#x3D; \frac{1}{2} |w|^2 + C\sum_{i&#x3D;1}^m(\xi_i + \xi_i^*) - \sum_{i&#x3D;1}^m \mu_i \xi_i - \sum_{i&#x3D;1}^m \mu_i^{\star} \xi_i^{\star} + \sum_{i&#x3D;1}^m(\alpha_i ((w^Tx_i + b) - y_i - \epsilon - \xi_i)) + \sum_{i&#x3D;1}^m \alpha_i^{\star} ((w^Tx_i + b) - y_i - \epsilon - \xi_i^{\star})<br>$$</p>
+<p>再去求解拉格朗日乘数函数的最小值: $L$是凸优化问题, 求解偏导数等于0</p>
+<p>得到<br>$$<br>w &#x3D; 1 \<br>0 &#x3D; \sum_{i&#x3D;1}^m(\alpha_i^{\star} - \alpha_i) \<br>C &#x3D; \alpha_i + \mu_i \<br>C &#x3D; \alpha_i^{\star} + \mu_i^{\star} \<br>$$</p>
+<h4 id="拉格朗日对偶性"><a href="#拉格朗日对偶性" class="headerlink" title="拉格朗日对偶性"></a>拉格朗日对偶性</h4><p>$$<br>min f(x) \<br>s.t.\ c_i(x) \leq 0\ i &#x3D; 1,2,…,k (k个约束条件) \<br>h_j(x) &#x3D; 0,\ j &#x3D; 1,2,…,l (l个约束条件)<br>$$</p>
+<p>引入广义的的拉格朗日函数(对于约束分别引入乘数项)</p>
+<p>$L(x,\alpha, \beta) &#x3D; f(x) + \sum_{i&#x3D;1}^k \alpha_i c_i(x) + \sum_{j&#x3D;1}^l \beta_j h_j(x) $</p>
+<p>考虑关于$x$的函数: $\Theta_p(x) &#x3D; max_{\alpha,\beta,\alpha_i \geq 0} L(x, \alpha, \beta)$</p>
+<p>那么如果$x$可以满足约束, 那么$\Theta_p(x) &#x3D; f(x)$</p>
+<p>否则必然存在某个约束条件不满足, 取相应的系数$\alpha_i$或者$\beta_j$使其取到$\inf$, 那么$\Theta_p(x) &#x3D; +\inf$</p>
+<p>所以我们考虑关于$\Theta_P(x)$的极小化问题<br>$$<br>min_x \Theta_P(x) &#x3D; min_x max_{\alpha, \beta, \alpha_i \geq 0} L(x, \alpha, \beta)<br>$$</p>
+<p>它与原始问题$min_{x\in R} f(x)$是等价的, 所以我们把原始问题的最优化问题表示为了拉格朗日函数的极小-极大问题;</p>
+<p>$p^{\star} &#x3D; min_x \Theta_P(x)$ 也就是原问题的值.</p>
+<p>对偶问题: $\Theta_D(\alpha, \beta) &#x3D; min_x L(x,\alpha, \beta)$</p>
+<p>极大化对偶问题等价于 $max_{\alpha,\beta,\alpha_i \geq 0} min_x L(x,\alpha, \beta)$ 就是拉格朗日函数的 极大-极小问题;</p>
+<p>对偶问题的值 $d^{\star} &#x3D; max_{\alpha,\beta,\alpha_i \geq 0} \Theta_D(\alpha, \beta)$</p>
+<p>考虑原始问题与对偶问题的关系, 可以发现$d^{\star} \leq p^{\star}$</p>
+<p>在满足上述所有的条件的解,成立 $d^{\star} &#x3D; p^{\star}$</p>
+<p>于是就完成了原问题(min) 到 拉格朗日问题(min-max) 再到 拉格朗日对偶问题(max-min)的转化.</p>
+<p>补充:</p>
+<p>KKT条件</p>
+<ol>
+<li>$\frac{\partial L}{\partial x} &#x3D; 0$</li>
+<li>$\alpha_i^{\star} c_i(x^{\star}) &#x3D; 0$</li>
+<li>$c_i(x^{\star}) \leq 0$</li>
+<li>$\alpha_i^{\star} \geq 0$</li>
+<li>$h_j(x^{\star}) &#x3D; 0$</li>
+</ol>
+<h3 id="4-LDA"><a href="#4-LDA" class="headerlink" title="4. LDA()"></a>4. LDA()</h3><p>问题：需要进行输入变量的投影(eg 从高维度输入转为一个低维度，必然会丢失一些特征)</p>
+<p>例如以下的线性映射:</p>
+<p>$x\in R^d \to y \in R,\ y &#x3D; w^Tx$</p>
+<ul>
+<li>选择一个最好的权重$w$使得投影后的结果能最大限度区分不同类别。</li>
+</ul>
+<p>考虑一个二分类的问题</p>
+<p>$N_1, C_1$, $N_2, C_2$为两类的点数和类别的输出；</p>
+<p>那么在原始空间的平均值向量</p>
+<p>$$<br>m_k &#x3D; \frac{1}{N_k}\sum_{i\in C_k} x_i<br>$$</p>
+<p>在投影空间的平均值向量<br>$$<br>\mu_k &#x3D; \frac{1}{N_k}\sum_{i\in C_k}w^T x_i<br>$$</p>
+<p>那么为了区分类别，我们需要可以区分投影后类别的均值，于是我们希望最大化均值之间的绝对差值</p>
+<p>$$\mu_2 - \mu_1 &#x3D; w^T(m_2 - m_1)$$</p>
+<p>又有问题: $w$的选取随机性很大</p>
+<ul>
+<li>解决: 单位长度 $||w|| &#x3D; 1$</li>
+<li>通过lagrange乘数法进行约束条件下的最大化求解$w$, 于是我们可以求出$w$</li>
+</ul>
+<p><strong>Fisher Linear Discriminant</strong></p>
+<p>希望在两类的均值差值大的情况下, 让一个类内部的分布更可能集中(方差小)</p>
+<ul>
+<li><p>类间均值差距 $\mu_2 - \mu_1$</p>
+</li>
+<li><p>类内方差 $\sum_{i\in C_1}(w^Tx_i - \mu_1)(w^Tx_i - \mu_1)^T + \sum_{i\in C_2}(w^Tx_i - \mu_2)(w^Tx_i - \mu_2)^T &#x3D; \sigma_1 + \sigma_2$</p>
+</li>
+<li><p>Fisher Linear Discriminant目标函数 $J(w) &#x3D; \frac{(\mu_2 - \mu_1)^2}{\sigma_1 + \sigma_2}$</p>
+</li>
+</ul>
+<p>$$<br>J(w) &#x3D; \frac{w^TS_Bw}{w^TS_ww}<br>$$<br>其中$S_B$为类间散度矩阵, $S_w$为类内散度矩阵</p>
+<p>$S_B &#x3D; (m_2 - m_1)(m_2-m_1)^T$, $S_w&#x3D;\sum_k\sum_{i\in C_k} (x_i - m_k)(x_i - m_k)^T$</p>
+<h3 id="5-Polynomial-regression"><a href="#5-Polynomial-regression" class="headerlink" title="5. Polynomial regression"></a>5. Polynomial regression</h3><ol start="6">
+<li>Radix-Based Regression 基向量(分量)</li>
+</ol>
+<hr>
+<p>其他:</p>
+<p>Least-Square Error的问题</p>
+<ul>
+<li><p>样本分布问题&#x3D;&gt;扰动很大</p>
+</li>
+<li><p>Least squares corresponds to maximum likelihood under the<br>assumption of a Gaussian conditional distribution.</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/11/01/vision2cloudnative-sdns/" rel="prev" title="软件中心化的云原生网络函数-机遇和挑战">
+      <i class="fa fa-chevron-left"></i> 软件中心化的云原生网络函数-机遇和挑战
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/06/SVM-SVR/" rel="next" title="SVM-SVR">
+      SVM-SVR <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%9F%E4%B8%AD%E5%A4%8D%E4%B9%A0"><span class="nav-number">1.</span> <span class="nav-text">期中复习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">分类算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95%E6%95%B4%E7%90%86-Classification"><span class="nav-number">1.2.</span> <span class="nav-text">分类算法整理(Classification)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%84%9F%E7%9F%A5%E6%9C%BA-Perceptrons"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 感知机 Perceptrons</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-KNN"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. KNN</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%AF%E5%B7%AE%E5%87%BD%E6%95%B0"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">误差函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#KNN%E7%9A%84%E5%AE%9E%E7%8E%B0-kd-tree"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">KNN的实现-kd tree</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 朴素贝叶斯</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Logistic%E5%9B%9E%E5%BD%92-%E6%9C%80%E5%A4%A7%E7%86%B5%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. Logistic回归(最大熵模型)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B-1"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%84%E4%BB%B7%E6%A0%87%E5%87%86"><span class="nav-number">1.2.4.2.</span> <span class="nav-text">评价标准</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.2.4.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%86%B3%E7%AD%96%E6%A0%91"><span class="nav-number">1.2.5.</span> <span class="nav-text">5. 决策树*</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-SVM-%E7%BA%BF%E6%80%A7-%E6%A0%B8%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.6.</span> <span class="nav-text">6. SVM(线性, 核方法)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9E%E5%BD%92%E7%AE%97%E6%B3%95%E6%95%B4%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">回归算法整理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Linear-Regression"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. Linear Regression</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Lasso-Ridge"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. Lasso, Ridge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-SVR"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. SVR</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7SVR"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">线性SVR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6%E6%80%A7"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">拉格朗日对偶性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-LDA"><span class="nav-number">1.3.4.</span> <span class="nav-text">4. LDA()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Polynomial-regression"><span class="nav-number">1.3.5.</span> <span class="nav-text">5. Polynomial regression</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chalkydoge"
+      src="/images/header.jpg">
+  <p class="site-author-name" itemprop="name">Chalkydoge</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chalkydoge</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

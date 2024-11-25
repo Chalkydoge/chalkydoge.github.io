@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chalkydoge.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="先看最简单的跨主机通信组件的实现(Flannel), 后面再补上其他的实现.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不同的网络结构整理">
+<meta property="og:url" content="http://chalkydoge.github.io/2022/12/30/k8s-networks/index.html">
+<meta property="og:site_name" content="doge的个人site">
+<meta property="og:description" content="先看最简单的跨主机通信组件的实现(Flannel), 后面再补上其他的实现.">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-12-30T08:25:34.000Z">
+<meta property="article:modified_time" content="2024-11-25T16:05:37.980Z">
+<meta property="article:author" content="Chalkydoge">
+<meta property="article:tag" content="摸鱼">
+<meta property="article:tag" content="networks">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chalkydoge.github.io/2022/12/30/k8s-networks/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>不同的网络结构整理 | doge的个人site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">doge的个人site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://chalkydoge.github.io/2022/12/30/k8s-networks/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/header.jpg">
+      <meta itemprop="name" content="Chalkydoge">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="doge的个人site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          不同的网络结构整理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-12-30 16:25:34" itemprop="dateCreated datePublished" datetime="2022-12-30T16:25:34+08:00">2022-12-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-26 00:05:37" itemprop="dateModified" datetime="2024-11-26T00:05:37+08:00">2024-11-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>先看最简单的跨主机通信组件的实现(Flannel), 后面再补上其他的实现.</p>
+<span id="more"></span>
+
+<ol>
+<li>基于Flannel组件的<strong>第3层</strong>流量转发, 解决 不同主机之间 跨机通信的问题(网络资源的问题)</li>
+</ol>
+<p>它自己的简介:</p>
+<ul>
+<li><p>每个主机上运行一个简易的代理程序 <code>flanneld</code></p>
+</li>
+<li><p>每个主机上的代理程序负责分配一组子网段,  来源于 主机集群所属的 网络地址空间;</p>
+</li>
+</ul>
+<p>Flannel runs a small, single binary agent called flanneld on each host, and is responsible for allocating a subnet lease to each host out of a larger, preconfigured address space. Flannel uses either the Kubernetes API or etcd directly to store the network configuration, the allocated subnets, and any auxiliary data (such as the host’s public IP). Packets are forwarded using one of several backend mechanisms including VXLAN and various cloud integrations.</p>
+<p>举个例子：一个集群里面有两台主机(实际的机器A和B)</p>
+<p>集群范围内的网络地址空间为<code>10.1.0.0/16</code>(CIDR)</p>
+<p>A主机获得的子网IP范围<code>10.1.15.0/24</code><br>A主机上有两个pod, pod1和pod2, 对应的IP分别是<code>10.1.15.2/24</code>和<code>10.1.15.3/24</code></p>
+<p>B主机获得的子网IP范围<code>10.1.16.0/24</code><br>B主机上有两个pod, pod3和pod4, 对应的IP分别是<code>10.1.16.2/24</code>和<code>10.1.16.3/24</code></p>
+<p>如果 A主机上的pod1 想要与B主机上的pod3进行通信, 需要进行某种转发才能完成(因为不在一台机器上)</p>
+<ul>
+<li><p>A主机的flanneld程序会把自己的subnet信息存入etcd: subnet &#x3D; <code>10.1.15.0/24</code>的所在主机可以通过一个内网IP <code>192.168.0.100</code>访问;</p>
+</li>
+<li><p>同样的B主机上的flanneld程序会把自己的subnet信息存入etcd: subnet &#x3D; <code>10.1.16.0/24</code> 的所在主机可以通过一个内网IP <code>192.168.0.200</code>访问;</p>
+</li>
+<li><p>每台主机上的flanneld通过<strong>监听</strong>etcd，也能够知道其他的subnet与哪些主机相关联;</p>
+</li>
+<li><p>flanneld只要想办法将封包从Machine A转发到Machine B; 一旦目的地址为<code>10.1.16.2/24</code>的数据包可以到达主机B, 就能够通过CNI0网桥转发到这台主机上的pod3, 从而达到跨机器通信.</p>
+</li>
+</ul>
+<p>采用的方法可以有很多种:</p>
+<ul>
+<li>hostgw: 把B主机看作一个网关, 当有封包的目的地址在subnet 10.1.16.0&#x2F;24范围内时，就将其直接转发至B即可; 在满足仍有subnet可以分配的条件下，我们可以将上述方法扩展到任意数目位于同一子网内的主机;</li>
+</ul>
+<p>每台主机都是租借了一个subnet，如果到了一定时间不进行更新，那么该subnet就会过期从而重新分配给其他的主机(类似于DHCP)</p>
+<p>调用GetNetworkConfig()</p>
+<ul>
+<li><p>SubnetLen表示每个主机分配的subnet大小;如果集群的网络地址空间大于&#x2F;24，则SubnetLen配置为24，否则它比集群网络地址空间小1，例如集群的大小为&#x2F;25，则SubnetLen的大小为&#x2F;26</p>
+</li>
+<li><p>SubnetMin是集群网络地址空间中最小的可分配的subnet，可以手动指定，否则默认配置为集群网络地址空间中第一个可分配的subnet。例如对于<code>10.1.0.0/16</code>，当SubnetLen为24时，第一个可分配的subnet为<code>10.1.1.0/24</code></p>
+</li>
+<li><p>SubnetMax表示最大可分配的subnet，对于”10.1.0.0&#x2F;16″，当subnetLen为24时，SubnetMax为”10.1.255.0&#x2F;24″</p>
+</li>
+<li><p>BackendType为使用的backend的类型，如未指定，则默认为<code>UDP</code></p>
+</li>
+<li><p>Backend中会包含backend的附加信息，例如backend为vxlan时，其中会存储vtep设备的mac地址</p>
+</li>
+</ul>
+<p>发现新节点</p>
+<ol>
+<li>当本主机的flanneld启动时，如果集群中已经存在了其他主机，我们如何通过backend进行配置，使得封包能够到达它们</li>
+<li>如果之后集群中又添加了新的主机，我们如何获取这一事件，并通过backend对配置进行调整，对于删除主机这类事件同理</li>
+</ol>
+<p>通过etcd解决</p>
+<p>hostgw是最简单的backend，它的原理非常简单，直接添加路由，将目的主机当做网关，直接路由原始封包。</p>
+<p>我们知道当backend为hostgw时，主机之间传输的就是原始的容器网络封包，封包中的源IP地址和目的IP地址都为容器所有。这种方法有一定的限制，就是要求所有的主机都在一个子网内，即二层可达，否则就无法将目的主机当做网关，直接路由。</p>
+<p>而udp类型backend的基本思想是：既然主机之间是可以相互通信的（并不要求主机在一个子网中），那么我们为什么不能将容器的网络封包作为负载数据在集群的主机之间进行传输呢？这就是所谓的overlay</p>
+<p>另外两个著名的k8s网络策略插件,Calico和Cilium后面(一定介绍)(下次一定…)</p>
+<hr>
+<p>还需要补充一些k8s网络模型的相关知识, CNI的工作原理; 期望可以通过本地搭建minikube的方式体验k8s不同service之间的网络通信方式(service是k8s管理的服务对象, 而一个服务往往可以包括多个pod(多备份), 不同的pod可以处在不同的node上, node依附在物理机上, 而物理机上的IP地址,网络地址都是可能不同的, 因此是可能出现从一个pod到另一个pod的网络通信; 如何更好的实现这一点? 需要我们在CNI上面进行自己定义, 通过CNI提供的网络资源相关接口, 适配服务从而实现相应的功能)</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%91%B8%E9%B1%BC/" rel="tag"># 摸鱼</a>
+              <a href="/tags/networks/" rel="tag"># networks</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/12/29/tea-1226/" rel="prev" title="tea-1226">
+      <i class="fa fa-chevron-left"></i> tea-1226
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/12/31/2022-sum/" rel="next" title="2022-sum">
+      2022-sum <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chalkydoge"
+      src="/images/header.jpg">
+  <p class="site-author-name" itemprop="name">Chalkydoge</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chalkydoge</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

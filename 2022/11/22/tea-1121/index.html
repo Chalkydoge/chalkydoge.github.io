@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chalkydoge.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="下午茶知识点: 二维前缀和, 贪心&amp;构造, 双指针&amp;找规律">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tea-1121">
+<meta property="og:url" content="http://chalkydoge.github.io/2022/11/22/tea-1121/index.html">
+<meta property="og:site_name" content="doge的个人site">
+<meta property="og:description" content="下午茶知识点: 二维前缀和, 贪心&amp;构造, 双指针&amp;找规律">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://chalkydoge.github.io/2022/11/22/tea-1121/119B.png">
+<meta property="article:published_time" content="2022-11-22T12:23:52.000Z">
+<meta property="article:modified_time" content="2024-11-25T16:05:37.992Z">
+<meta property="article:author" content="Chalkydoge">
+<meta property="article:tag" content="快去学算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chalkydoge.github.io/2022/11/22/tea-1121/119B.png">
+
+<link rel="canonical" href="http://chalkydoge.github.io/2022/11/22/tea-1121/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>tea-1121 | doge的个人site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">doge的个人site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://chalkydoge.github.io/2022/11/22/tea-1121/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/header.jpg">
+      <meta itemprop="name" content="Chalkydoge">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="doge的个人site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          tea-1121
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-11-22 20:23:52" itemprop="dateCreated datePublished" datetime="2022-11-22T20:23:52+08:00">2022-11-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-26 00:05:37" itemprop="dateModified" datetime="2024-11-26T00:05:37+08:00">2024-11-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>下午茶知识点: 二维前缀和, 贪心&amp;构造, 双指针&amp;找规律</p>
+<span id="more"></span>
+
+<h2 id="11-21-106D-AtCoder-Express-2"><a href="#11-21-106D-AtCoder-Express-2" class="headerlink" title="11.21 106D AtCoder Express 2"></a>11.21 106D AtCoder Express 2</h2><p><a target="_blank" rel="noopener" href="https://atcoder.jp/contests/abc106/tasks/abc106_d">https://atcoder.jp/contests/abc106/tasks/abc106_d</a></p>
+<h2 id="11-22-178F-Contrast"><a href="#11-22-178F-Contrast" class="headerlink" title="11.22 178F Contrast"></a>11.22 178F Contrast</h2><p><a target="_blank" rel="noopener" href="https://atcoder.jp/contests/abc178/tasks/abc178_f">https://atcoder.jp/contests/abc178/tasks/abc178_f</a></p>
+<p>找众数, A+B数组中出现超过了N次 &#x3D;&gt; 不可能实现, No;</p>
+<p>否则一定可以!(具体怎么构造?) </p>
+<p>输入按照<strong>升序</strong>排列, 构造的时候刻意逆序(这样可以尽可能避免相同)</p>
+<ul>
+<li><p>如果还是相同了! 从前往后遍历, 就从前面换(前面的至少大于等于)</p>
+</li>
+<li><p>由于之前的保证, 我们肯定有解, 所以不会死循环</p>
+</li>
+</ul>
+<h2 id="11-23-C-Swaps-2"><a href="#11-23-C-Swaps-2" class="headerlink" title="11.23 C - Swaps 2"></a>11.23 C - Swaps 2</h2><p><a target="_blank" rel="noopener" href="https://atcoder.jp/contests/arc120/tasks/arc120_c">https://atcoder.jp/contests/arc120/tasks/arc120_c</a></p>
+<ul>
+<li><p>a和b最终如果可以经过操作相等</p>
+</li>
+<li><p>a[1], …, a[n]</p>
+</li>
+</ul>
+<blockquote>
+<p>  左移x次 变成 a[i] + X<br>    右移X次 变成 a[i] - X</p>
+</blockquote>
+<p>如果最终 a[i]和b[j]匹配, 那么 $a[i] + p - q &#x3D; b[j]$ 成立</p>
+<p>$a[i] + i &#x3D;&#x3D; b[j] + j$成立(不太清楚怎么能够推出来的…)</p>
+<p>通过相邻交换数组a’ 变成b’所需要的最小操作次数(等价于求逆序对数量)</p>
+<ul>
+<li><p>记录a数组内所有元素及其对应位置(对于相同元素: 从小到大)</p>
+</li>
+<li><p>遍历b数组, 观察当前b数组的值v在a中出现的位置</p>
+<ul>
+<li>如果不存在 说明不可能实现 返回-1</li>
+<li>否则, 从a中对应元素的位置中取出第一个位置j, 当前位置为i</li>
+<li>那么邻项交换这一段的代价就是[j, i]这一段的逆序对数量</li>
+<li>使用树状数组维护逆序对数量..</li>
+</ul>
+</li>
+</ul>
+<h2 id="11-24-133C-Row-Column-Sums"><a href="#11-24-133C-Row-Column-Sums" class="headerlink" title="11.24 133C - Row Column Sums"></a>11.24 133C - Row Column Sums</h2><p>构造题</p>
+<p>给定a, b数组, 构造一个矩阵满足</p>
+<ul>
+<li><code>第i行的和 % K</code> &#x3D; a[i]</li>
+<li><code>第j列的和 % K</code> &#x3D; b[j]</li>
+</ul>
+<p>矩阵元素取值范围为 $[0, K - 1]$</p>
+<p>如果可以做到, 给出矩阵的<strong>最小元素和</strong>, 否则输出-1</p>
+<p>初始化这个矩阵如下: 全部填最大, 然后逐渐缩小</p>
+<p>$$<br>\begin{bmatrix}<br>k-1 &amp; k-1\<br>k-1 &amp; k-1<br>\end{bmatrix}<br>$$</p>
+<p>对于第$i$行的元素, 需要减小$((k-1)\times m - a[i]) % k$<br>对于第$j$列的元素, 需要减小$((k-1)\times n - b[j]) % k$</p>
+<p>证明至少要减小$Z&#x3D;max(\sum_i C_i, \sum_j D_j)$, 且不会出现负数.</p>
+<p>$(\sum_{1\leq i \leq H} C_i) \ mod\ K &#x3D; (\sum_{1\leq j \leq W} D_j) \ mod\ K$</p>
+<h2 id="11-25-119B-Electric-Board"><a href="#11-25-119B-Electric-Board" class="headerlink" title="11.25 119B - Electric Board"></a>11.25 119B - Electric Board</h2><p><a target="_blank" rel="noopener" href="https://atcoder.jp/contests/arc119/tasks/arc119_b">https://atcoder.jp/contests/arc119/tasks/arc119_b</a></p>
+<p>题中给到的交换操作只限于</p>
+<ul>
+<li>交换0(1)+的 最左侧&amp;最右侧字符 变成 11111…0的形式</li>
+<li>交换1(0)+的 最左侧&amp;最右侧字符 变成 10000…0的形式</li>
+</ul>
+<p>重要性质:</p>
+<ol>
+<li>不会对0的数量产生影响</li>
+<li>对于已经在对应位置上的0 我们不需要交换 否则说明需要</li>
+</ol>
+<p>假设S中的0位置为 i1, T[i1] &#x3D; 1说明需要交换</p>
+<ul>
+<li>交换给谁?</li>
+</ul>
+<p>证明一下发现按照<code>相对位置</code>顺序交换是最优的, 为什么?</p>
+<ul>
+<li>S中相邻的两个0, 位置为$i_1, i_2$, 且满足$i_1 &lt; i_2$</li>
+<li>T中相邻的两个0, 位置为$j_1, j_2$, 且满足$j_1 &lt; j_2$</li>
+</ul>
+<p>如果不对应顺序 &#x3D;&gt; 交换必然导致 $i_1\to j_2$, $i_2 \to j_1$ 这种情况发生</p>
+<ul>
+<li>而 $i_1 \to j_1$, $i_2 \to j_2$ 的代价更小(没有重叠段)</li>
+</ul>
+<p>所以只需要按照顺序依次求出0位置的差值即可.</p>
+<img src="/2022/11/22/tea-1121/119B.png" class="" title="119B-answer">
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%BF%AB%E5%8E%BB%E5%AD%A6%E7%AE%97%E6%B3%95/" rel="tag"># 快去学算法</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/11/13/tea-1114/" rel="prev" title="tea-1114">
+      <i class="fa fa-chevron-left"></i> tea-1114
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/24/ml-fraud/" rel="next" title="机器学习作业-欺诈识别">
+      机器学习作业-欺诈识别 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-21-106D-AtCoder-Express-2"><span class="nav-number">1.</span> <span class="nav-text">11.21 106D AtCoder Express 2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-22-178F-Contrast"><span class="nav-number">2.</span> <span class="nav-text">11.22 178F Contrast</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-23-C-Swaps-2"><span class="nav-number">3.</span> <span class="nav-text">11.23 C - Swaps 2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-24-133C-Row-Column-Sums"><span class="nav-number">4.</span> <span class="nav-text">11.24 133C - Row Column Sums</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-25-119B-Electric-Board"><span class="nav-number">5.</span> <span class="nav-text">11.25 119B - Electric Board</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chalkydoge"
+      src="/images/header.jpg">
+  <p class="site-author-name" itemprop="name">Chalkydoge</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chalkydoge</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>
